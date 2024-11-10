@@ -1,0 +1,14 @@
+
+default:
+  image: docker:24.0.5
+
+stages:
+  - build
+
+build-job:
+  stage: build
+  script:
+    - docker build -t localhost:5000/tda25-syntaxsurge:latest .
+    - docker push localhost:5000/tda25-syntaxsurge:latest
+  only:
+    - mastah
