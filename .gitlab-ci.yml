@@ -12,3 +12,4 @@ build-job:
     - docker push localhost:5000/tda25-syntaxsurge:latest
   only:
     - mastah
+    - develop
