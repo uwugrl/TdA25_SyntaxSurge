@@ -17,4 +17,6 @@ COPY tsconfig.json .
 
 RUN npm run build
 
+EXPOSE 80
+
 ENTRYPOINT [ "npm", "run", "start" ]
