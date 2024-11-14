@@ -13,3 +13,8 @@ build-job:
   only:
     - mastah
     - develop
+  cache:
+    key: fortnite
+    paths:
+      - node_modules/
+      - .next/cache/
