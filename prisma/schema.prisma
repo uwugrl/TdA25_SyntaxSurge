@@ -1,0 +1,31 @@
+
+
+
+datasource db {
+    provider = "sqlite"
+    url = "file:./data.db"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Game {
+    id Int @id @default(autoincrement())
+    name String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    difficulty Int
+    gameBoardData GameBoard[]
+}
+
+model GameBoard {
+    id Int @id @default(autoincrement())
+    x Int
+    y Int
+    gameBoard Game @relation(fields: [gameBoardId], references: [id])
+    gameBoardId Int
+    state Int
+
+    @@unique([x, y, id])
+}
