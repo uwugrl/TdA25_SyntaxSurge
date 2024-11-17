@@ -11,7 +11,7 @@ generator client {
 }
 
 model Game {
-    id Int @id @default(autoincrement())
+    id String @id
     name String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -24,7 +24,7 @@ model GameBoard {
     x Int
     y Int
     gameBoard Game @relation(fields: [gameBoardId], references: [id])
-    gameBoardId Int
+    gameBoardId String
     state Int
 
     @@unique([x, y, id])
