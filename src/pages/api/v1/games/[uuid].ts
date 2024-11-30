@@ -99,7 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
         res.status(200).json({
-            id: data.id,
+            uuid: data.id,
             name: data.name,
             difficulty: data.difficulty,
             board: data.board
