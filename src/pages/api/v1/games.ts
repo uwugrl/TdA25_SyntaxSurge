@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { v4 as uuidv4 } from 'uuid';
+import { fromDbDifficulty, fromDbBoard } from "@/components/fromDB";
+import { toDbBoard, toDbDifficulty } from "@/components/toDB";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -15,49 +17,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        let difficulty = -1;
-        if (data.difficulty == "beginner") {
-            difficulty = 0;
-        } else if (data.difficulty == "easy") {
-            difficulty = 1;
-        } else if (data.difficulty == "medium") {
-            difficulty = 2;
-        } else if (data.difficulty == "hard") {
-            difficulty = 3;
-        } else if (data.difficulty == "extreme") {
-            difficulty = 4;
-        }
-
-        if (difficulty == -1) {
+        let difficulty = toDbDifficulty(data.difficulty);
+        if (difficulty == "Invalid value") {
             res.status(400).json({ error: `Invalid difficulty ${data.difficulty}` });
             return;
         }
 
-        let board = [];
-
-        for (let i in data.board) {
-            for (let j in data.board[i]) {
-                const tile = data.board[i][j];
-                if (tile != "X" && tile != "O" && tile != "") {
-                    res.status(422).json({ error: `Invalid tile ${i}/${j}: ${tile}` });
-                    return;
-                }
-
-                let tileInt = -1;
-                if (tile == "X") {
-                    tileInt = 1;
-                } else if (tile == "O") {
-                    tileInt = 2;
-                } else {
-                    tileInt = 0;
-                }
-
-                board.push({
-                    x: parseInt(i),
-                    y: parseInt(j),
-                    state: tileInt
-                })
-            }
+        let board = toDbBoard(data.board);
+        if (board == "Semantic error") {
+            res.status(400).json({ error: "Semantic error" });
+            return;
         }
 
         const prisma = new PrismaClient();
@@ -68,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 id: uuidv4(),
                 name: data.name,
                 difficulty: difficulty,
-                gameBoardData: {
+                board: {
                     createMany: {
                         data: board
                     }
@@ -86,12 +55,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const games = await prisma.game.findMany({
             include: {
-                gameBoardData: true
+                board: true
             }
         });
 
+        const parsedGames = [];
+        for (let game of games) {
+            const board: ("X" | "O" | "")[][] = fromDbBoard(game.board);
+            let difficulty = fromDbDifficulty(game.difficulty);
+            
+            parsedGames.push({
+                id: game.id,
+                name: game.name,
+                difficulty: difficulty,
+                board: board
+            })
+        }
+
         await prisma.$disconnect();
 
-        res.status(200).json(games);
+        res.status(200).json(parsedGames);
     }
 }
