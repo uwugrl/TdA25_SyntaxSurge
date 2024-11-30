@@ -10,11 +10,5 @@ build-job:
   script:
     - docker build -t localhost:5000/tda25-syntaxsurge:latest .
     - docker push localhost:5000/tda25-syntaxsurge:latest
-  only:
-    - mastah
-    - develop
-  cache:
-    key: fortnite
-    paths:
-      - node_modules/
-      - .next/cache/
+  except:
+    - stable
