@@ -1,9 +1,6 @@
-
-
-
 datasource db {
     provider = "sqlite"
-    url = "file:./data/data.db"
+    url      = "file:./data/data.db"
 }
 
 generator client {
@@ -11,19 +8,19 @@ generator client {
 }
 
 model Game {
-    id String @id
-    name String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id         String      @id
+    name       String
+    createdAt  DateTime    @default(now())
+    updatedAt  DateTime    @updatedAt
     difficulty Int
-    board GameBoard[]
+    board      GameBoard[]
 }
 
 model GameBoard {
-    id Int @id @default(autoincrement())
-    x Int
-    y Int
-    game Game @relation(fields: [gameId], references: [id])
+    id     Int    @id @default(autoincrement())
+    x      Int
+    y      Int
+    game   Game   @relation(fields: [gameId], references: [id])
     gameId String
-    state Int
+    state  Int
 }
