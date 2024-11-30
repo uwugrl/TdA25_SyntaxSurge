@@ -33,10 +33,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
         await prisma.$disconnect();
         res.status(200).json({
-            id: game.id,
+            uuid: game.id,
             name: game.name,
+            createdAt: game.createdAt.toISOString(),
+            updatedAt: game.updatedAt.toISOString(),
             difficulty: difficulty,
-            board: board
+            board: board,
+            gameState: 'unknown' // FIXME
         });
     } else if (req.method == "PUT") {
         if (!req.query.uuid) {
@@ -101,8 +104,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(200).json({
             uuid: data.id,
             name: data.name,
+            createdAt: updResult.createdAt.toISOString(),
+            updatedAt: updResult.updatedAt.toISOString(),
             difficulty: data.difficulty,
-            board: data.board
+            board: data.board,
+            gameState: 'unknown' // FIXME
         });
     } else if (req.method == "DELETE") {
         if (!req.query.uuid) {
