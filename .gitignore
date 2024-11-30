@@ -38,3 +38,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Prisma Database
+/prisma/data/
+# Sentry Config File
+.env.sentry-build-plugin

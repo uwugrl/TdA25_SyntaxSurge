@@ -1,22 +1,21 @@
 
 FROM node:20
 
+RUN npm i -g pnpm
+
 WORKDIR /app
 
 COPY package.json .
 
-RUN npm i
+RUN pnpm i
 
-COPY src/. src/
-COPY public/. public/
-COPY .eslintrc.json .
-COPY next.config.ts .
-COPY postcss.config.mjs .
-COPY tailwind.config.ts .
-COPY tsconfig.json .
+COPY . .
 
-RUN npm run build
+RUN pnpm prisma generate
+RUN pnpm run build
 
 EXPOSE 80
+
+VOLUME [ "/app/prisma/data" ]
 
 ENTRYPOINT [ "npm", "run", "start" ]
