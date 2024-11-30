@@ -37,30 +37,37 @@ export default async function handler(
     const prisma = new PrismaClient();
     await prisma.$connect();
 
-    const create = await prisma.game.create({
+    const id = uuidv4()
+
+    await prisma.game.create({
       data: {
-        id: uuidv4(),
+        id,
         name: data.name,
         difficulty: difficulty,
         board: {
           createMany: {
             data: board,
           },
-        },
+        }
       },
+    });
+
+    const create = await prisma.game.findFirstOrThrow({
+        where: {
+            id
+        }
     });
 
     await prisma.$disconnect();
 
     res.status(201).json({
       uuid: create.id,
-      name: data.name,
+      createdAt: create.createdAt,
+      updatedAt: create.updatedAt,
+      name: create.name,
       difficulty: difficulty,
-      board: {
-        createMany: {
-          data: board,
-        },
-      },
+      board: data.board,
+      gameState: 'unknown' // FIXME
     });
   } else if (req.method == "GET") {
     const prisma = new PrismaClient();
@@ -79,9 +86,12 @@ export default async function handler(
 
       parsedGames.push({
         uuid: game.id,
+        createdAt: game.createdAt.toISOString(),
+        updatedAt: game.updatedAt.toISOString(),
         name: game.name,
         difficulty: difficulty,
         board: board,
+        gameState: 'unknown' // FIXME
       });
     }
 
