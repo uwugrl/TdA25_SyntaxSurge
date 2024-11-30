@@ -11,6 +11,8 @@ RUN pnpm i
 
 COPY . .
 
+RUN chmod +x DockerEntrypoint.sh
+
 RUN pnpm prisma generate
 RUN pnpm run build
 
@@ -18,4 +20,4 @@ EXPOSE 80
 
 VOLUME [ "/app/prisma/data" ]
 
-ENTRYPOINT [ "./DockerEntrypoint.sh" ]
+ENTRYPOINT [ "/app/DockerEntrypoint.sh" ]
