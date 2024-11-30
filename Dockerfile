@@ -18,4 +18,4 @@ EXPOSE 80
 
 VOLUME [ "/app/prisma/data" ]
 
-ENTRYPOINT [ "npm", "run", "start" ]
+ENTRYPOINT [ "DockerEntrypoint.sh" ]
