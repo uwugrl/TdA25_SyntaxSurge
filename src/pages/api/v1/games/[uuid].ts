@@ -99,16 +99,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
 
         if (!updResult) {
+            await prisma.$disconnect();
             res.status(404).json({error: "Not found"});
             return;
         }
 
         await prisma.$disconnect();
 
-        if (!updResult) {
-            res.status(404).json({error: "Game not found"});
-            return;
-        }
         res.status(200).json({
             uuid: updResult.id,
             name: updResult.name,
