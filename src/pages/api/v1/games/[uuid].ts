@@ -103,6 +103,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             })
         }
 
+        const updResult = await prisma.game.findFirst({
+            where:{
+                id: req.query.uuid as string
+            },
+            include: {
+                board: true
+            }
+        })
+
+        if (!updResult) {
+            res.status(404).json({error: "Not found"});
+            return;
+        }
+
         await prisma.$disconnect();
 
         if (!updResult) {
