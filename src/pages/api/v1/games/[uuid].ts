@@ -71,13 +71,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const prisma = new PrismaClient();
         await prisma.$connect();
 
-        const updResult = await prisma.game.update({
+        await prisma.game.update({
             where: {
                 id: req.query.uuid as string
             }, data: {
                 name: data.name, difficulty: difficulty
             }
         });
+
+        const updResult = await prisma.game.findFirst({
+            where:{
+                id: req.query.uuid as string
+            },
+            include: {
+                board: true
+            }
+        })
+
+        if (!updResult) {
+            res.status(404).json({error: "Not found"});
+            return;
+        }
 
         for (let i in board) {
             await prisma.gameBoard.updateMany({
@@ -96,12 +110,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
         res.status(200).json({
-            uuid: data.id,
-            name: data.name,
+            uuid: updResult.id,
+            name: updResult.name,
             createdAt: updResult.createdAt.toISOString(),
             updatedAt: updResult.updatedAt.toISOString(),
-            difficulty: data.difficulty,
-            board: data.board,
+            difficulty: fromDbDifficulty(updResult.difficulty),
+            board: fromDbBoard(updResult.board),
             gameState: 'unknown' // FIXME
         });
     } else if (req.method == "DELETE") {
