@@ -79,6 +79,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
         });
 
+        for (let i in board) {
+            await prisma.gameBoard.updateMany({
+                where: {
+                    gameId: req.query.uuid as string, x: board[i].x, y: board[i].y
+                }, data: {
+                    state: board[i].state
+                }
+            })
+        }
+
         const updResult = await prisma.game.findFirst({
             where:{
                 id: req.query.uuid as string
@@ -91,16 +101,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!updResult) {
             res.status(404).json({error: "Not found"});
             return;
-        }
-
-        for (let i in board) {
-            await prisma.gameBoard.updateMany({
-                where: {
-                    gameId: req.query.uuid as string, x: board[i].x, y: board[i].y
-                }, data: {
-                    state: board[i].state
-                }
-            })
         }
 
         await prisma.$disconnect();
