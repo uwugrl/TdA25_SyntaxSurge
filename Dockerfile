@@ -1,20 +1,31 @@
 
 FROM node:20
 
-RUN npm i -g pnpm
-
 WORKDIR /app
 
 COPY package.json .
 
-RUN pnpm i
+RUN yarn
 
-COPY . .
+COPY DockerEntrypoint.sh .
+COPY LICENSE .
+COPY next.config.ts .
+COPY postcss.config.mjs .
+COPY README.md .
+COPY sentry.client.config.ts .
+COPY sentry.edge.config.ts .
+COPY sentry.server.config.ts .
+COPY tailwind.config.ts .
+COPY tsconfig.json .
+
+COPY public/ ./public
+COPY src/ ./src
+COPY prisma/ ./prisma
 
 RUN chmod +x DockerEntrypoint.sh
 
-RUN pnpm prisma generate
-RUN pnpm run build
+RUN yarn prisma generate
+RUN yarn build
 
 EXPOSE 80
 

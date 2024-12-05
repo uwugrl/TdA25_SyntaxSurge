@@ -1,0 +1,15 @@
+
+services:
+  web:
+    build: .
+    develop:
+      watch:
+        - path: "*.ts"
+          action: rebuild
+          target: web
+        - path: "*.tsx"
+          action: rebuild
+          target: web
+    ports:
+      - "3000:3000"
+    
