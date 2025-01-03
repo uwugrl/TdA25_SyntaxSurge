@@ -1,23 +1,26 @@
 
-FROM node:20
-
-RUN npm i -g pnpm
+FROM node:20-alpine
 
 WORKDIR /app
 
 COPY package.json .
 
-RUN pnpm i
+RUN yarn install && yarn cache clean
 
-COPY . .
+COPY src/. src/.
+COPY public/. src/.
+COPY next.config.ts .
+COPY tsconfig.json .
+COPY postcss.config.mjs .
+COPY tailwind.config.ts .
 
 RUN chmod +x DockerEntrypoint.sh
 
-RUN pnpm prisma generate
-RUN pnpm run build
+RUN yarn prisma generate
+RUN yarn build
 
 EXPOSE 80
 
-VOLUME [ "/app/prisma/data" ]
+STOPSIGNAL SIGKILL
 
 ENTRYPOINT [ "/app/DockerEntrypoint.sh" ]
