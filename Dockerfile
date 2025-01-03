@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY package.json .
 
-RUN yarn
+RUN yarn install && yarn cache clean
 
 COPY DockerEntrypoint.sh .
 COPY LICENSE .
