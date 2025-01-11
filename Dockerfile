@@ -7,17 +7,20 @@ COPY package.json .
 
 RUN yarn install && yarn cache clean
 
+COPY DockerEntrypoint.sh .
+COPY LICENSE .
+COPY next.config.ts .
+COPY postcss.config.mjs .
+COPY README.md .
 COPY sentry.client.config.ts .
 COPY sentry.edge.config.ts .
 COPY sentry.server.config.ts .
-COPY DockerEntrypoint.sh .
-COPY next.config.ts .
-COPY tsconfig.json .
-COPY postcss.config.mjs .
 COPY tailwind.config.ts .
-COPY public/. src/.
-COPY prisma/. prisma/.
-COPY src/. src/.
+COPY tsconfig.json .
+
+COPY public/ ./public
+COPY src/ ./src
+COPY prisma/ ./prisma
 
 RUN chmod +x DockerEntrypoint.sh
 
