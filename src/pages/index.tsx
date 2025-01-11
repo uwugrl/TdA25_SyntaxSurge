@@ -4,11 +4,11 @@ import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import localFont from "next/font/local";
 import Image from "next/image";
 import Logo from '../Logo.png';
-import Link from "next/link";
-import {formatDate} from "@/components/base";
-import {useRouter} from "next/router";
-import Metadata from "@/components/Metadata";
 import React from "react";
+import Link from "next/link";
+import {useRouter} from "next/router";
+import {formatDate} from "@/components/base";
+import Metadata from "@/components/Metadata";
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     let {page} = ctx.query as { page: string };

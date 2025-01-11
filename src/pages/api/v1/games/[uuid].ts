@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             updatedAt: game.updatedAt.toISOString(),
             difficulty: difficulty,
             board: board,
-            gameState: 'unknown' // FIXME
+            gameState: determineGameState(board)
         });
     } else if (req.method == "PUT") {
         if (!req.query.uuid) {
@@ -91,9 +91,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         const updResult = await prisma.game.findFirst({
-            where: {
+            where:{
                 id: req.query.uuid as string
-            }, include: {
+            },
+            include: {
                 board: true
             }
         })
