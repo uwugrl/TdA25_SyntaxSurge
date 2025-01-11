@@ -3,6 +3,7 @@ import {NextApiRequest, NextApiResponse} from "next";
 import {v4 as uuidv4} from "uuid";
 import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import {toDbBoard, toDbDifficulty} from "@/components/toDB";
+import {determineGameState} from "@/components/gameUtils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method == "POST") {
@@ -18,13 +19,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         let difficulty = toDbDifficulty(data.difficulty);
         if (difficulty == "Invalid value") {
-            res.status(400).json({error: `Invalid difficulty ${data.difficulty}`});
+            res.status(422).json({error: `Invalid difficulty ${data.difficulty}`});
             return;
         }
 
         let board = toDbBoard(data.board);
         if (board == "Semantic error") {
-            res.status(400).json({error: "Semantic error"});
+            res.status(422).json({error: "Semantic error"});
             return;
         }
 
@@ -58,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             name: create.name,
             difficulty: data.difficulty,
             board: data.board,
-            gameState: "unknown", // FIXME
+            gameState: determineGameState(data.board)
         });
     } else if (req.method == "GET") {
         const prisma = new PrismaClient();
@@ -82,7 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 name: game.name,
                 difficulty: difficulty,
                 board: board,
-                gameState: "unknown", // FIXME
+                gameState: determineGameState(board)
             });
         }
 
