@@ -16,6 +16,23 @@ export function getNextSymbol(board: ("X" | "O" | "")[][]): ("X" | "O") {
     return x > o ? "O" : "X";
 }
 
+export function checkCorrectStartingPlayer(board: ("X" | "O" | "")[][]): boolean {
+    let x = 0;
+    let o = 0;
+
+    for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[i].length; j++) {
+            if (board[i][j] === "X") {
+                x++;
+            } else if (board[i][j] === "O") {
+                o++;
+            }
+        }
+    }
+
+    return x >= o;
+}
+
 export function evalWinner(board: ("X" | "O" | "")[][], k: number = 5): ("X" | "O" | "") {
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
@@ -110,10 +127,6 @@ export function determineGameState(board: ("X" | "O" | "")[][]): ("opening" | "m
 
     if (x + o < 5) {
         return "opening";
-    }
-
-    if (evalWinner(board) !== "") {
-        return "endgame";
     }
 
     return "midgame";

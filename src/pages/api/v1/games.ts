@@ -3,7 +3,7 @@ import {NextApiRequest, NextApiResponse} from "next";
 import {v4 as uuidv4} from "uuid";
 import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import {toDbBoard, toDbDifficulty} from "@/components/toDB";
-import {determineGameState} from "@/components/gameUtils";
+import {checkCorrectStartingPlayer, determineGameState} from "@/components/gameUtils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method == "POST") {
@@ -14,6 +14,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const data = req.body;
         if (!data.name || !data.difficulty || !data.board) {
             res.status(400).json({error: "Missing fields"});
+            return;
+        }
+
+        if (!checkCorrectStartingPlayer(data.board)) {
+            res.status(422).json({error: "Incorrect starting player"});
             return;
         }
 
