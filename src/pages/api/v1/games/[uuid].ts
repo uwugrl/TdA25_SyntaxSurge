@@ -2,6 +2,7 @@ import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import {toDbBoard, toDbDifficulty} from "@/components/toDB";
 import {PrismaClient} from "@prisma/client";
 import {NextApiRequest, NextApiResponse} from "next";
+import {determineGameState} from "@/components/gameUtils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -90,10 +91,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         const updResult = await prisma.game.findFirst({
-            where:{
+            where: {
                 id: req.query.uuid as string
-            },
-            include: {
+            }, include: {
                 board: true
             }
         })
@@ -113,7 +113,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             updatedAt: updResult.updatedAt.toISOString(),
             difficulty: fromDbDifficulty(updResult.difficulty),
             board: fromDbBoard(updResult.board),
-            gameState: 'unknown' // FIXME
+            gameState: determineGameState(fromDbBoard(updResult.board))
         });
     } else if (req.method == "DELETE") {
         if (!req.query.uuid) {
