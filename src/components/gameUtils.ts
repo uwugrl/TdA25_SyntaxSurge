@@ -105,10 +105,28 @@ export function evalWinner(board: ("X" | "O" | "")[][], k: number = 5): ("X" | "
     return "";
 }
 
+export function checkCorrectGameSize(board: ("X" | "O" | "")[][]): boolean {
+    if (board.length != 15) {
+        return false;
+    }
+
+    for (let i of board) {
+        if (i.length != 15) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export function determineGameState(board: ("X" | "O" | "")[][]): ("opening" | "midgame" | "endgame") {
     let next = getNextSymbol(board);
     let theoreticalWinner = evalWinner(board, 4);
     if (theoreticalWinner === next) {
+        return "endgame";
+    }
+
+    if (evalWinner(board) != "") {
         return "endgame";
     }
 
@@ -125,7 +143,7 @@ export function determineGameState(board: ("X" | "O" | "")[][]): ("opening" | "m
         }
     }
 
-    if (x + o < 5) {
+    if (x + o <= 5) {
         return "opening";
     }
 

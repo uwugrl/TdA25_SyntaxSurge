@@ -2,7 +2,7 @@ import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import {toDbBoard, toDbDifficulty} from "@/components/toDB";
 import {PrismaClient} from "@prisma/client";
 import {NextApiRequest, NextApiResponse} from "next";
-import {checkCorrectStartingPlayer, determineGameState} from "@/components/gameUtils";
+import {checkCorrectGameSize, checkCorrectStartingPlayer, determineGameState} from "@/components/gameUtils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -59,6 +59,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (!checkCorrectStartingPlayer(data.board)) {
             res.status(422).json({error: "Invalid starting player"});
+            return;
+        }
+
+        if (!checkCorrectGameSize(data.board)) {
+            res.status(422).json({error: "Invalid size"});
             return;
         }
 
