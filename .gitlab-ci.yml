@@ -8,7 +8,6 @@ stages:
 build-job:
   stage: build
   script:
-    - docker build -t localhost:5000/tda25-syntaxsurge:latest .
-    - docker push localhost:5000/tda25-syntaxsurge:latest
+    - docker build -t tda25-syntaxsurge:latest .
   except:
     - stable
