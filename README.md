@@ -1,40 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Think different Academy
 
-## Getting Started
+Apka pro nominační kolo soutěže [Tour de App](https://tourde.app/).
 
-First, run the development server:
+## Vytvořili
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- mldchan - [Web](https://mldchan.dev/), [GitHub](https://github.com/mldchan), [code.mldchan.dev](https://code.mldchan.dev/mld), [Fedi](https://social.mldchan.dev/@mld)
+- krystof - [code.mldchan.dev](https://code.mldchan.dev/Krysunka), [Fedi](https://social.mldchan.dev/@Krysunka)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## O aplikaci
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Aplikace je vytvořena pomocí NextJS a TailwindCSS. Používáme Prismu pro návrh databáze a SQLite aby jsme data uložili na
+disk.
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Vývoj
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+Pokud chcete spustit tuto aplikaci ve vývoji, můžete použít následující příkazy:
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. `git clone https://code.mldchan.dev/mld/tda25_syntaxsurge.git` - naklonování repozitáře (popřípadě použít GitHub)
+2. `cd tda25_syntaxsurge` - přesun do složky s projektem
+3. `yarn install` - stažení knihoven
+4. `yarn dev` - spuštění vývojového serveru
 
-## Learn More
+## Stavba do produkce
 
-To learn more about Next.js, take a look at the following resources:
+Pokud chcete aplikaci postavit do produkce, můžete použít následující příkazy:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+1. `git clone https://code.mldchan.dev/mld/tda25_syntaxsurge.git` - naklonování repozitáře (popřípadě použít GitHub)
+2. `cd tda25_syntaxsurge` - přesun do složky s projektem
+3. `yarn install` - stažení knihoven
+4. `yarn build` - sestavení aplikace
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Naše aplikace jde také postavit jako Docker image. Pro to je potřeba mít nainstalovaný Docker. Pokud ho máte, můžete
+použít následující příkazy:
 
-## Deploy on Vercel
+1. `git clone https://code.mldchan.dev/mld/tda25_syntaxsurge.git` - naklonování repozitáře (popřípadě použít GitHub)
+2. `cd tda25_syntaxsurge` - přesun do složky s projektem
+3. `docker build -t tda25_syntaxsurge:latest .` - sestavení Docker image
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Aplikace běží na portu 80, pomocí `docker run -p 80:80 tda25_syntaxsurge:latest` můžete spustit aplikaci.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+## Licence
+
+Celá aplikace je pod licencí GNU AGPL v3. Tato licence je určena pro webové aplikace. Každá aplikace používající náš
+kód musí být pod stejnou licencí. Pro více informací se podívejte do souboru `LICENSE`.
