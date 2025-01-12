@@ -176,6 +176,17 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
             })}
 
             {paginationButtons(props)}
+
+            <br/>
+            <br/>
+
+            <Link href={'/about'} className={'text-[#0070BB]'}>
+                O aplikaci Think different Academy
+            </Link>
+
+            <br/>
+            <br/>
+            <br/>
         </main>
     </>);
 }
