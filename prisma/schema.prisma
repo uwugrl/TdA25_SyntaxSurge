@@ -1,26 +1,50 @@
 datasource db {
-    provider = "sqlite"
-    url      = "file:./data/data.db"
+  provider = "sqlite"
+  url      = "file:./data/data.db"
 }
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 model Game {
-    id         String      @id
-    name       String
-    createdAt  DateTime    @default(now())
-    updatedAt  DateTime    @updatedAt
-    difficulty Int
-    board      GameBoard[]
+  id         String      @id
+  name       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  difficulty Int
+  board      GameBoard[]
 }
 
 model GameBoard {
-    id     Int    @id @default(autoincrement())
-    x      Int
-    y      Int
-    game   Game   @relation(fields: [gameId], references: [id])
-    gameId String
-    state  Int
+  id     Int    @id @default(autoincrement())
+  x      Int
+  y      Int
+  game   Game   @relation(fields: [gameId], references: [id])
+  gameId String
+  state  Int
+}
+
+model User {
+  userId         String   @id
+  username       String   @unique
+  email          String   @unique
+  password       String // argon2id hashed pass
+  createDate     DateTime @default(now())
+  lastActiveDate DateTime @default(now())
+  lastUpdateDate DateTime @default(now()) @updatedAt
+  elo           Int     @default(400)
+  wins          Int     @default(0)
+  draws         Int     @default(0)
+  losses        Int     @default(0)
+  administrator Boolean @default(false)
+
+  userTokens UserTokens[]
+}
+
+model UserTokens {
+  tokenId Int    @id @default(autoincrement())
+  userId  String
+  user    User   @relation(fields: [userId], references: [userId])
+  token   String
 }

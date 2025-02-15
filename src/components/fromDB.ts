@@ -24,7 +24,7 @@ export function fromDbBoard(inputBoard: {
 
     let currentRow: ("X" | "O" | "")[] = [];
 
-    for (let i in inputBoard.sort((a, b) => a.x - b.x || a.y - b.y)) {
+    for (const i in inputBoard.sort((a, b) => a.x - b.x || a.y - b.y)) {
         let state = "";
         if (inputBoard[i].state == 1) {
             state = "X";

@@ -27,13 +27,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        let difficulty = toDbDifficulty(data.difficulty);
+        const difficulty = toDbDifficulty(data.difficulty);
         if (difficulty == "Invalid value") {
             res.status(422).json({error: `Invalid difficulty ${data.difficulty}`});
             return;
         }
 
-        let board = toDbBoard(data.board);
+        const board = toDbBoard(data.board);
         if (board == "Semantic error") {
             res.status(422).json({error: "Semantic error"});
             return;
@@ -82,9 +82,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         const parsedGames = [];
-        for (let game of games) {
+        for (const game of games) {
             const board: ("X" | "O" | "")[][] = fromDbBoard(game.board);
-            let difficulty = fromDbDifficulty(game.difficulty);
+            const difficulty = fromDbDifficulty(game.difficulty);
 
             parsedGames.push({
                 uuid: game.id,

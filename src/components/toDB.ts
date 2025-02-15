@@ -1,9 +1,9 @@
 
 export function toDbBoard(inputBoard: ("X" | "O" | "")[][]): { x: number; y: number; state: number }[] | "Semantic error" {
-    let outputBoard: { x: number; y: number; state: number }[] = [];
+    const outputBoard: { x: number; y: number; state: number }[] = [];
 
-    for (let i in inputBoard) {
-        for (let j in inputBoard[i]) {
+    for (const i in inputBoard) {
+        for (const j in inputBoard[i]) {
             const tile = inputBoard[i][j];
             if (tile != "X" && tile != "O" && tile != "") {
                 return "Semantic error";

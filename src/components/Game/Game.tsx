@@ -31,7 +31,7 @@ export default function Game(params: {
 
         setIsLoaded(false);
 
-        let next = [...gameRef.current];
+        const next = [...gameRef.current];
         next[x][y] = getNextSymbol(game);
         setNextMove(getNextSymbol(next));
         setGameState(determineGameState(next));
@@ -51,7 +51,7 @@ export default function Game(params: {
     }
 
     const getWinnerImage = () => {
-        let winner = evalWinner(gameRef.current, 5);
+        const winner = evalWinner(gameRef.current, 5);
 
         switch (winner) {
             case "X":
