@@ -1,8 +1,8 @@
 export function newBoard(): ("X" | "O" | "")[][] {
-    let list: ("X" | "O" | "")[][] = [];
+    const list: ("X" | "O" | "")[][] = [];
 
     for (let i = 0; i < 15; i++) {
-        let a: ("X" | "O" | "")[] = [];
+        const a: ("X" | "O" | "")[] = [];
         for (let j = 0; j < 15; j++) {
             a.push('');
         }

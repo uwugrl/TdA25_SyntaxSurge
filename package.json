@@ -9,21 +9,31 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^6.0.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/joy": "^5.0.0-beta.51",
+    "@prisma/client": "^6.3.1",
     "@sentry/nextjs": "8",
-    "next": "15.0.3",
-    "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106",
+    "argon2": "^0.41.1",
+    "check-password-strength": "^3.0.0",
+    "next": "^15.1.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.20.0",
     "@types/node": "^22.10.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "eslint": "^9.20.1",
+    "eslint-plugin-react": "^7.37.4",
+    "globals": "^15.15.0",
     "postcss": "^8",
-    "prisma": "^6.0.0",
+    "prisma": "^6.3.1",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.24.0"
   }
 }

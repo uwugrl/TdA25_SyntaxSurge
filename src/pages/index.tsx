@@ -4,11 +4,15 @@ import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import localFont from "next/font/local";
 import Image from "next/image";
 import Logo from '../Logo.png';
-import React from "react";
+import React, {useEffect} from "react";
 import Link from "next/link";
 import {useRouter} from "next/router";
 import {formatDate} from "@/components/base";
 import Metadata from "@/components/Metadata";
+import LoginDialog from "@/components/Accounts/LoginDialog";
+import {apiGet} from "@/components/frontendUtils";
+import {Button} from "@mui/joy";
+import RegisterDialog from "@/components/Accounts/RegisterDialog";
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     let {page} = ctx.query as { page: string };
@@ -144,15 +148,55 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
 
     const [existingGame, setExistingGame] = React.useState(false);
 
+    const [showLoginDialog, setShowLoginDialog] = React.useState(false);
+    const [showRegisterDialog, setShowRegisterDialog] = React.useState(false);
+
+    const [loggedIn, setLoggedIn] = React.useState(false);
+    const [loggedInUser, setLoggedInUser] = React.useState('');
+
+    useEffect(() => {
+        apiGet('/auth/status').then(x => {
+            if (x.status === 'ok') {
+                setLoggedIn(true);
+                setLoggedInUser(x.user);
+            }
+        });
+    }, [setLoggedIn, setLoggedInUser]);
+
     React.useEffect(() => {
         if (localStorage.getItem("game")) {
             setExistingGame(true);
         }
-    }, [setExistingGame])
+    }, [setExistingGame]);
+
+    const logout = () => {
+        apiGet('/auth/logout').then(() => {
+            setLoggedIn(false);
+            setLoggedInUser("");
+        });
+    }
 
     return (<>
         <Metadata title={'Úvodní stránka'} description={'Vítejte v Think different Academy!'}/>
         <main className={`w-3/4 m-auto ${dosis.className}`}>
+            {/*TODO stylovat*/}
+            {loggedIn ? (
+                <>
+                    <span>{`Přihlášen/a jako ${loggedInUser}`}</span>
+                    <Button onClick={logout}>
+                        Odhlásit se
+                    </Button>
+                </>
+            ) : (
+                <>
+                    <Button onClick={() => setShowRegisterDialog(true)}>
+                        Registrovat
+                    </Button>
+                    <Button onClick={() => setShowLoginDialog(true)}>
+                        Přihlásit se
+                    </Button>
+                </>
+            )}
             <div className={'m-6 text-center'}>
                 <Image src={Logo} alt={"Think different Academy"}/>
             </div>
@@ -183,6 +227,9 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
             <Link href={'/about'} className={'text-[#0070BB]'}>
                 O aplikaci Think different Academy
             </Link>
+
+            <LoginDialog show={showLoginDialog} hide={() => setShowLoginDialog(false)}/>
+            <RegisterDialog show={showRegisterDialog} hide={() => setShowRegisterDialog(false)}/>
 
             <br/>
             <br/>

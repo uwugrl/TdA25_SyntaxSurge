@@ -67,13 +67,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        let difficulty = toDbDifficulty(data.difficulty);
+        const difficulty = toDbDifficulty(data.difficulty);
         if (difficulty == "Invalid value") {
             res.status(422).json({error: `Invalid difficulty ${data.difficulty}`});
             return;
         }
 
-        let board = toDbBoard(data.board);
+        const board = toDbBoard(data.board);
         if (board == "Semantic error") {
             res.status(422).json({error: "Semantic error"});
             return;
@@ -90,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
         });
 
-        for (let i in board) {
+        for (const i in board) {
             await prisma.gameBoard.updateMany({
                 where: {
                     gameId: req.query.uuid as string, x: board[i].x, y: board[i].y

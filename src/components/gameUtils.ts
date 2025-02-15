@@ -110,7 +110,7 @@ export function checkCorrectGameSize(board: ("X" | "O" | "")[][]): boolean {
         return false;
     }
 
-    for (let i of board) {
+    for (const i of board) {
         if (i.length != 15) {
             return false;
         }
@@ -120,8 +120,8 @@ export function checkCorrectGameSize(board: ("X" | "O" | "")[][]): boolean {
 }
 
 export function determineGameState(board: ("X" | "O" | "")[][]): ("opening" | "midgame" | "endgame") {
-    let next = getNextSymbol(board);
-    let theoreticalWinner = evalWinner(board, 4);
+    const next = getNextSymbol(board);
+    const theoreticalWinner = evalWinner(board, 4);
     if (theoreticalWinner === next) {
         return "endgame";
     }
