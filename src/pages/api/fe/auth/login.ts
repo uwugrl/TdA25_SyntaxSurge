@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         await client.user.create({
             data: {
-                userId: userId,
+                userId,
                 username: "TdA",
                 email: "tda@scg.cz",
                 password: await hash("StudentCyberGames25!"),

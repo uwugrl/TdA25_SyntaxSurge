@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         await prisma.game.create({
             data: {
-                id, name: data.name, difficulty: difficulty, board: {
+                id, name: data.name, difficulty, board: {
                     createMany: {
                         data: board,
                     },
@@ -83,16 +83,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const parsedGames = [];
         for (const game of games) {
-            const board: ("X" | "O" | "")[][] = fromDbBoard(game.board);
-            const difficulty = fromDbDifficulty(game.difficulty);
+            const board: ("X" | "O" | "")[][] = fromDbBoard(game.board),
+             difficulty = fromDbDifficulty(game.difficulty);
 
             parsedGames.push({
                 uuid: game.id,
                 createdAt: game.createdAt.toISOString(),
                 updatedAt: game.updatedAt.toISOString(),
                 name: game.name,
-                difficulty: difficulty,
-                board: board,
+                difficulty,
+                board,
                 gameState: determineGameState(board)
             });
         }

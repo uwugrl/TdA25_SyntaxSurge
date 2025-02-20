@@ -28,14 +28,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     switch (req.method) {
         case 'GET':
+            {
 
             const client = new PrismaClient();
             await client.$connect();
             const users = await client.user.findMany();
             await client.$disconnect();
 
-            res.status(200).send(users.map(x => {
-                return {
+            res.status(200).send(users.map(x => ({
                     uuid: x.userId,
                     createdAt: x.createDate.toISOString(),
                     username: x.username,
@@ -44,11 +44,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     wins: x.wins,
                     draws: x.draws,
                     losses: x.losses
-                }
-            }))
+                })))
 
             break;
+        }
         case 'POST':
+            {
 
             if (req.headers["content-type"] !== "application/json") {
                 res.status(400).send({
@@ -104,6 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
 
             break;
+        }
     }
 
 }

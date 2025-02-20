@@ -1,3 +1,4 @@
+import React from "react";
 import "@/styles/globals.css";
 import type {AppProps} from "next/app";
 import {CssVarsProvider, extendTheme} from "@mui/joy";
@@ -9,6 +10,15 @@ const theme = extendTheme({
     fontFamily: {
         body: dosis.style.fontFamily,
         display: dosis.style.fontFamily
+    },
+    colorSchemes: {
+        dark: {
+            palette: {
+                background: {
+                    surface: '1a1a1a'
+                }
+            }
+        }
     }
 })
 

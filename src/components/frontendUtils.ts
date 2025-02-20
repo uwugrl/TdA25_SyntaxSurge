@@ -17,7 +17,7 @@
  *
  */
 
-export async function apiGet(route: string): Promise<any> {
+export async function apiGet(route: string): Promise<unknown> {
 
     return new Promise((resolve, reject) => {
         fetch(`/api/fe${route}`, {
@@ -26,13 +26,11 @@ export async function apiGet(route: string): Promise<any> {
             x.json().then(data => {
                 if (x.ok) {
                     resolve(data);
-                } else {
-                    if (data.hasOwnProperty('error')) {
+                } else if (Object.prototype.hasOwnProperty.call(data, 'error')) {
                         reject(`Error: ${x.statusText}: ${data.error}`);
                     } else {
                         reject(`Error: ${x.statusText}: ${data}`);
                     }
-                }
             }).catch(y => {
                 reject(`Error: ${x.statusText}: ${y}`);
             });
@@ -43,7 +41,7 @@ export async function apiGet(route: string): Promise<any> {
 
 }
 
-export async function apiPost(route: string, obj: any): Promise<any> {
+export async function apiPost(route: string, obj: unknown): Promise<unknown> {
     return new Promise((resolve, reject) => {
         fetch(`/api/fe${route}`, {
             method: 'POST',
@@ -55,13 +53,11 @@ export async function apiPost(route: string, obj: any): Promise<any> {
             x.json().then(data => {
                 if (x.ok) {
                     resolve(data);
-                } else {
-                    if (data.hasOwnProperty('error')) {
+                } else if (Object.prototype.hasOwnProperty.call(data, 'error')) {
                         reject(`Error: ${x.statusText}: ${data.error}`);
                     } else {
                         reject(`Error: ${x.statusText}: ${data}`);
                     }
-                }
             }).catch(y => {
                 reject(`Error: ${x.statusText}: ${y}`);
             });

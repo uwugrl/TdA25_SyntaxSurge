@@ -1,4 +1,4 @@
-import {ChangeEvent} from "react";
+import React from "react";
 
 export default function GameBoardFreeEdit(params: {
     board: ("X" | "O" | "")[][],
@@ -10,15 +10,14 @@ export default function GameBoardFreeEdit(params: {
         <>
             <table>
                 <tbody>
-                {params.board.map((x, i) => {
-                    return <tr key={i}>
+                {params.board.map((x, i) => <tr key={i}>
                         {x.map((y, j) => {
-                            function change(event: ChangeEvent<HTMLSelectElement>) {
+                            function change(event: React.ChangeEvent<HTMLSelectElement>) {
                                 params.setBoard(
                                     params.board.map((z, k) => {
-                                        if (k != i) return z;
+                                        if (k != i) {return z;}
                                         return z.map((a, l) => {
-                                            if (l != j) return a;
+                                            if (l != j) {return a;}
                                             return event.currentTarget.value as ("X" | "O" | "");
                                         });
                                     })
@@ -34,8 +33,7 @@ export default function GameBoardFreeEdit(params: {
                                 </select>
                             </td>
                         })}
-                    </tr>
-                })}
+                    </tr>)}
                 </tbody>
             </table>
         </>

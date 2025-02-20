@@ -4,10 +4,12 @@ import {GetServerSidePropsContext, InferGetServerSidePropsType} from "next";
 import GameBoard from "@/components/Game/GameBoard";
 import localFont from "next/font/local";
 import {determineGameState, evalWinner} from "@/components/gameUtils";
-import TdA from "@/components/logo";
 import Image from "next/image";
 import Metadata from "@/components/Metadata";
 import {useRouter} from "next/router";
+import React from "react";
+import Header from "@/components/Header";
+import { Button, Card, CardContent, Stack, Typography } from "@mui/joy";
 
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
@@ -18,8 +20,8 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     }
 
-    const prisma = new PrismaClient();
-    const game = await prisma.game.findUnique({
+    const prisma = new PrismaClient(),
+     game = await prisma.game.findUnique({
         where: {
             id: uuid
         }, include: {
@@ -27,7 +29,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     });
 
-    // game: {id, x, y, state, gameID}[]
+    // Game: {id, x, y, state, gameID}[]
 
     if (!game) {
         return {
@@ -35,8 +37,8 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     }
 
-    const board: ("X" | "O" | "")[][] = fromDbBoard(game.board);
-    const difficulty = fromDbDifficulty(game.difficulty);
+    const board: ("X" | "O" | "")[][] = fromDbBoard(game.board),
+     difficulty = fromDbDifficulty(game.difficulty);
 
     // Identify what symbol should be next for the game
 
@@ -48,8 +50,8 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
                 name: game.name,
                 createdAt: game.createdAt.toISOString(),
                 updatedAt: game.updatedAt.toISOString(),
-                difficulty: difficulty,
-                board: board,
+                difficulty,
+                board,
                 gameState: determineGameState(board)
             }
         }
@@ -83,17 +85,32 @@ export default function ViewSavedGame(props: InferGetServerSidePropsType<typeof 
     return <>
         <Metadata title={props.game.name} description={'Hrajte piškvorky na Think different Academy ještě dnes!'}/>
         <main className={`w-3/4 m-auto ${dosis.className}`}>
-            <TdA />
-            <h1 className={'text-3xl font-bold my-2'}>{props.game.name}</h1>
+            <Header />
+            {[1,2,3,4,5].map(x => <br key={x}/>)}
+            <Typography level="h1">{`Hra: ${props.game.name}`}</Typography>
             <GameBoard board={props.game.board}/>
-            {props.game.gameState === 'midgame' && <div className={'p-2 border-[#E31837] border-2 m-1 rounded-lg drop-shadow-md'}>
-                <h2 className={'text-2xl font-bold'}>Hra právě probíhá.</h2>
-                <button className={'border-2 border-white text-xl rounded-lg p-1 px-2 mt-2 hover:text-[#E31837] hover:bg-white'} onClick={takeOverGame}>Převzít tuto hru</button>
-            </div>}
-            {winner === "" || <div className={'p-2 m-1 rounded-lg drop-shadow-md border-2 border-[#E31837]'}>
-                <h2 className={'text-2xl font-bold'}>Hra je ukončena.</h2>
-                <p className={'flex flex-row gap-2'}>Hru vyhráli {getWinnerImage()}</p>
-            </div>}
+
+            {[1,2].map(x => <br key={x} />)}
+
+            <Card>
+                <CardContent>
+                    <Stack gap={1}>
+                        <Typography level="h3">Stav hry</Typography>
+                        {props.game.gameState === 'opening' && <Typography>Hra právě začala.</Typography>}
+                        {props.game.gameState === 'midgame' && <Typography>Hra probíhá.</Typography>}
+                        {winner === "" || <Stack direction="row" gap={1}>
+                            <Typography alignSelf="center">Hra skončila. Hru vyhráli</Typography>
+                            {getWinnerImage()}
+                        </Stack>}
+
+                        {props.game.gameState !== 'endgame' && <>
+                            <Typography color="danger">Převzít hru:</Typography>
+                            <Button onClick={takeOverGame} color="danger">Převzít hru</Button>
+                            <Typography fontSize="sm">Můžete převzít hru. Kliknutím na tlačítko převzetí hry můžete pokračovat hrát v této konkrétní hře</Typography>
+                        </>}
+                    </Stack>
+                </CardContent>
+            </Card>
         </main>
     </>
 }

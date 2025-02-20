@@ -22,15 +22,6 @@ import {NextApiRequest, NextApiResponse} from "next";
 import {hash} from 'argon2';
 import {v4} from "uuid";
 
-function generateToken(): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < 32; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         res.status(405).send({
@@ -77,8 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
-    const hashPassword = await hash(password);
-    const randomID = v4();
+    const hashPassword = await hash(password), randomID = v4();
 
     await client.user.create({
         data: {

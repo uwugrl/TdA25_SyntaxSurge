@@ -2,7 +2,8 @@ import {useEffect, useState} from "react";
 import CreateGameForm from "@/components/Game/CreateGameForm";
 import localFont from "next/font/local";
 import GameComponent from '@/components/Game/Game';
-import TdA from "@/components/logo";
+import React from "react";
+import Header from "@/components/Header";
 
 const dosis = localFont({src: '../fonts/Dosis-VariableFont_wght.ttf'});
 
@@ -26,10 +27,9 @@ export default function Game() {
                     setTitle(y.name);
                     setGameId(y.uuid);
                 })
-            }).catch(x => {
+            }).catch(() => {
                 localStorage.removeItem("game");
-                location.reload();
-                return;
+                location.reload();  
             })
         }
     }, []);
@@ -50,10 +50,15 @@ export default function Game() {
 
     return (<>
         <div className={`w-3/4 m-auto ${dosis.className}`}>
-            <TdA />
+            <br/>
+            <br/>
+            <br/>
+            <br/>
             {gameId === "" && <CreateGameForm gameCreated={gameHasCreated}/>}
             {gameId === "" ||
                 <GameComponent gameId={gameId} gameTitle={title} board={board} gameDifficulty={difficulty}/>}
+
+            <Header />
         </div>
     </>)
 }

@@ -20,7 +20,7 @@
 
 import {passwordStrength} from "check-password-strength";
 
-export function validateUser(username: any, email: any, password: any, elo: any): true | string {
+export function validateUser(username: string, email: string, password: string, elo: string): true | string {
     if (!username || !email || !password || !elo) {
         return 'Parameters are missing';
     }

@@ -17,7 +17,7 @@ export function formatDate(d: Date): string {
     let formattedDate = `${d.getDate()}. `
 
     switch (d.getMonth()) {
-        case 0: // nenavidim javascript, tohle je leden
+        case 0: // Nenavidim javascript, tohle je leden
             formattedDate = `${formattedDate}ledna`
             break;
         case 1:
@@ -54,7 +54,7 @@ export function formatDate(d: Date): string {
             formattedDate = `${formattedDate}prosince`
             break;
         default:
-            formattedDate = `${formattedDate}${d.getMonth()}` //fallback
+            formattedDate = `${formattedDate}${d.getMonth()}` //Fallback
             break;
     }
 

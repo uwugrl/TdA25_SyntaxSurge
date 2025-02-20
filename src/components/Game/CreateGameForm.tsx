@@ -3,6 +3,8 @@ import {fromDbDifficulty} from "@/components/fromDB";
 import {newBoard} from "@/components/base";
 import GameDifficultyPicker from "@/components/Game/GameDifficultyPicker";
 import Metadata from "@/components/Metadata";
+import React from "react";
+import { Button, FormControl, FormHelperText, FormLabel, Input, Stack, Typography } from "@mui/joy";
 
 
 export default function CreateGameForm(params: {
@@ -49,16 +51,19 @@ export default function CreateGameForm(params: {
     }
 
     return (
-        <>
+        <Stack spacing={2}>
             <Metadata title={`Nová Hra`} description={'Hrajte piškvorky na Think different Academy ještě dnes!'}/>
-            <h1 className='text-3xl font-bold'>Založit novou hru</h1>
-            <h2 className='text-2xl font-bold mb-2'>Název hry</h2>
-            <input type="text" disabled={loading} value={gameName} onChange={(x) => setGameName(x.currentTarget.value)}
-                   className='text-black p-1 px-2 rounded-md'/>
+            <Typography level="h1">Založit novou hru</Typography>
+
+            <FormControl>
+                <FormLabel>Název hry</FormLabel>
+                <Input type="text" disabled={loading} value={gameName} onChange={(x) => setGameName(x.currentTarget.value)} placeholder="Název hry" />
+                <FormHelperText>Zadejte název hry. Tento název se zobrazí v seznamu her a ve hře.</FormHelperText>
+            </FormControl>
+
             <GameDifficultyPicker current={gameDifficulty} disabled={loading} onChange={(x) => setGameDifficulty(x)} />
-            <br/>
-            <button className='bg-[#0070BB] rounded-md p-1 px-2' disabled={loading} onClick={createGame}>Založit hru
-            </button>
-        </>
+            {error && <Typography color="danger">{error}</Typography>}
+            <Button disabled={loading} onClick={createGame}>Založit hru</Button>
+        </Stack>
     )
 }

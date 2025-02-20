@@ -1,95 +1,68 @@
-import {GetServerSidePropsContext, InferGetServerSidePropsType} from "next";
+import {InferGetServerSidePropsType} from "next";
 import {PrismaClient} from "@prisma/client";
 import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
-import localFont from "next/font/local";
 import Image from "next/image";
-import Logo from '../Logo.png';
-import React, {useEffect} from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {useRouter} from "next/router";
 import {formatDate} from "@/components/base";
 import Metadata from "@/components/Metadata";
-import LoginDialog from "@/components/Accounts/LoginDialog";
-import {apiGet} from "@/components/frontendUtils";
-import {Button} from "@mui/joy";
-import RegisterDialog from "@/components/Accounts/RegisterDialog";
+import {Button, ButtonGroup, Card, DialogTitle, Dropdown, Input, ListDivider, Menu, MenuButton, MenuItem, Modal, ModalClose, ModalDialog, Stack, Typography} from "@mui/joy";
+import Header from "@/components/Header";
+import {ArrowDropDown, Search} from '@mui/icons-material';
+import { determineGameState } from "@/components/gameUtils";
 
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-    let {page} = ctx.query as { page: string };
-
-    if (page === undefined) {
-        page = '1';
-    }
-
-    if (isNaN(Number(page))) {
-        return {
-            redirect: {
-                destination: '/', code: 307
-            }
-        }
-    }
-
+export async function getServerSideProps() {
     const client = new PrismaClient();
     await client.$connect();
 
-    const gameCount = await client.game.count();
-
     const games = (await client.game.findMany({
-        skip: (Number(page) - 1) * 10, take: 10, include: {
+        include: {
             board: true
         }, orderBy: {
             updatedAt: 'desc'
         }
-    })).map(x => {
-        return {
+    })).map(x => ({
             uuid: x.id,
             name: x.name,
             difficulty: fromDbDifficulty(x.difficulty),
             board: fromDbBoard(x.board),
             createdAt: x.createdAt.toISOString(),
-            updatedAt: x.updatedAt.toISOString()
-        }
-    });
+            updatedAt: x.updatedAt.toISOString(),
+            gameState: determineGameState(fromDbBoard(x.board))
+        }));
 
     await client.$disconnect();
 
-    if (Number(page) > Math.ceil(gameCount / 10) && gameCount > 0) {
-        return {
-            redirect: {
-                destination: `?page=${Math.ceil(gameCount / 10)}`,
-                permanent: false
-            }
-        }
-    }
-
     return {
         props: {
-            games, page: Number(page), canGoNext: Number(page) * 10 - gameCount < 0, lastPage: Math.ceil(gameCount / 10)
+            games
         }
     }
 }
 
-const dosis = localFont({src: './fonts/Dosis-VariableFont_wght.ttf'});
-
-function paginationButtons(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+function Pagination(props: {
+    lastPage: number,
+    page: number,
+    setPage: (page: number) => void
+}) {
     if (props.lastPage === 0) {
         return null;
     }
 
-    return (<>
-        {props.page > 1 &&
-            <Link href={`?page=${props.page - 1}`} className={'mx-2 font-bold hover:underline'}>Předchozí strana</Link>}
-        {props.canGoNext &&
-            <Link href={`?page=${props.page + 1}`} className={'mx-2 font-bold hover:underline'}>Další strana</Link>}
-        {props.page > 1 && <Link href={`?page=1`} className={'mx-2 font-bold hover:underline'}>První strana</Link>}
-        {(props.canGoNext && props.lastPage !== props.page) &&
-            <Link href={`?page=${props.lastPage}`} className={'mx-2 font-bold hover:underline'}>Poslední strana</Link>}
-        <p className={'ml-2 text-gray-500'}>Strana {props.page} z {props.lastPage}</p>
-    </>)
+    return (<ButtonGroup>
+        <Button disabled={props.page <= 1} onClick={() => props.setPage(1)}>První strana</Button>
+        <Button disabled={props.page <= 1} onClick={() => props.setPage(props.page - 1)}>Předchozí
+            strana</Button>
+        <Button disabled>Strana {props.page} z {props.lastPage}</Button>
+        <Button disabled={props.page === props.lastPage} onClick={() => props.setPage(props.page + 1)}>Další strana</Button>
+        <Button disabled={props.page === props.lastPage} onClick={() => props.setPage(props.lastPage)}>Poslední
+            strana</Button>
+    </ButtonGroup>);
 }
 
-function gameCard(props: {
-    uuid: string, name: string, createdAt: string, updatedAt: string, difficulty: string
+function GameCard(props: {
+    uuid: string, name: string, createdAt: string, updatedAt: string, difficulty: string, ended: boolean
 }) {
 
     let icon = '/Icon/zarivka_medium_bile.svg';
@@ -130,38 +103,247 @@ function gameCard(props: {
         })()
     }
 
-    return (<div className="border-2 border-white rounded-md my-2">
-        <h2 className={'text-2xl font-bold m-2'}>{props.name}</h2>
+    return (<Card>
+        <Typography level='h2' color={props.ended ? "neutral" : "success"}>{props.name}</Typography>
         <Image src={icon} alt={props.difficulty} height={32} width={32} className={'ml-2'}/>
-        <p>
-            <Link className={'mx-2 font-bold hover:underline'} href={`/game/${props.uuid}`}>Zobrazit hru</Link>
-            <Link className={'mx-2 font-bold hover:underline'} href={`/game/${props.uuid}/edit`}>Upravit hru</Link>
-            <a onClick={deleteGame} className={'mx-2 font-bold text-red-600 hover:underline'}>Smazat hru</a>
-        </p>
-        <p className={'ml-2 mb-1'}>
-            <span>{`Vytvořeno ${formatDate(dateCreated)}`}</span>
-        </p>
-    </div>)
+        <ButtonGroup>
+            <Link href={`/game/${props.uuid}`}>
+                <Button>
+                    Zobrazit hru
+                </Button>
+            </Link>
+
+            <Link href={`/game/${props.uuid}/edit`}>
+                <Button>
+                    Upravit hru
+                </Button>
+            </Link>
+            <Button onClick={deleteGame} color='danger' variant='solid'>Smazat hru</Button>
+        </ButtonGroup>
+        <Typography level='body-sm'>{`Vytvořeno ${formatDate(dateCreated)}`}</Typography>
+    </Card>)
+}
+
+function FilterOptions(props: {
+    setDifficultyFilter: (x: string | undefined) => void,
+    setFulltextFilter: (x: string | undefined) => void,
+    setGamestateFilter: (x: string | undefined) => void,
+    setLastMoveAfter: (x: Date | undefined) => void,
+    setLastMoveBefore: (x: Date | undefined) => void,
+    setCreatedAfter: (x: Date | undefined) => void,
+    setCreatedBefore: (x: Date | undefined) => void
+}) {
+
+    const [difficultyFilter, setDifficultyFilter] = useState<string | undefined>(undefined);
+    const [gamestateFilter, setGamestateFilter] = useState<string | undefined>(undefined);
+    const [fulltextFilter, setFulltextFilter] = useState<string | undefined>(undefined);
+
+    const [lastMoveAfter, setLastMoveAfter] = useState<Date | undefined>(undefined);
+    const [lastMoveBefore, setLastMoveBefore] = useState<Date | undefined>(undefined);
+
+    const [openLastMoveAfterDialog, setOpenLastMoveAfterDialog] = useState(false);
+    const [openLastMoveBeforeDialog, setOpenLastMoveBeforeDialog] = useState(false);
+
+    let posledniTahText = 'Poslední tah';
+
+    if (lastMoveAfter) {
+        posledniTahText = `> ${lastMoveAfter.toISOString().slice(0, 10)}`;
+    }
+    if (lastMoveBefore) {
+        posledniTahText = `< ${lastMoveBefore.toISOString().slice(0, 10)}`;
+    }
+    const [createdAfter, setCreatedAfter] = useState<Date | undefined>(undefined);
+    const [createdBefore, setCreatedBefore] = useState<Date | undefined>(undefined);
+
+    const [openCreatedAfterDialog, setOpenCreatedAfterDialog] = useState(false);
+    const [openCreatedBeforeDialog, setOpenCreatedBeforeDialog] = useState(false);
+
+    let vytvorenText = 'Založení hry';
+
+    if (createdAfter) {
+        vytvorenText = `> ${createdAfter.toISOString().slice(0, 10)}`;
+    }
+    if (createdBefore) {
+        vytvorenText = `< ${createdBefore.toISOString().slice(0, 10)}`;
+    }
+
+    const DIFFICULTIES = [{
+        id: "beginner",
+        val: "Začátečník"
+    }, {
+        id: "easy",
+        val: "Jednoduchá"
+    }, {
+        id: "medium",
+        val: "Pokročilá"
+    }, {
+        id: "hard",
+        val: "Těžká"
+    }, {
+        id: "extreme",
+        val: "Nejtěžší"
+    }];
+
+    const GAMESTATES = [{
+        id: "opening",
+        val: "Začínající"
+    }, {
+        id: "midgame",
+        val: "Probíhající"
+    }, {
+        id: "endgame",
+        val: "Ukončené"
+    }];
+
+    return <>
+        <Stack direction="row" gap={1}>
+            <Typography alignSelf={'center'}>Filtrovat</Typography>
+            
+            {/* Difficulty */}
+
+            <Dropdown>
+                <MenuButton endDecorator={<ArrowDropDown />}>{difficultyFilter ? DIFFICULTIES.find(x => x.id === difficultyFilter)?.val : 'Obtížnost'}</MenuButton>
+                <Menu>
+                    {difficultyFilter && <>
+                        <MenuItem onClick={() => {setDifficultyFilter(undefined); props.setDifficultyFilter(undefined)}}>
+                            Odstranit filtr
+                        </MenuItem>
+                        <ListDivider />
+                    </>}
+                    
+                    {DIFFICULTIES.map(x => (
+                        <MenuItem key={x.id} onClick={() => {setDifficultyFilter(x.id); props.setDifficultyFilter(x.id)}}>{x.val}</MenuItem>
+                    ))}
+                </Menu>
+            </Dropdown>
+
+            {/* Game State */}
+            
+            <Dropdown>
+                <MenuButton endDecorator={<ArrowDropDown />}>{gamestateFilter ? GAMESTATES.find(x => x.id === gamestateFilter)?.val : 'Herní stav'}</MenuButton>
+                <Menu>
+                    {gamestateFilter && <>
+                        <MenuItem onClick={() => {setGamestateFilter(undefined); props.setGamestateFilter(undefined)}}>
+                            Odstranit filtr
+                        </MenuItem>
+                        <ListDivider />
+                    </>}
+                    
+                    {GAMESTATES.map(x => (
+                        <MenuItem key={x.id} onClick={() => {setGamestateFilter(x.id); props.setGamestateFilter(x.id)}}>{x.val}</MenuItem>
+                    ))}
+                </Menu>
+            </Dropdown>
+
+            {/* Last move date */}
+
+            <Dropdown>
+                <MenuButton endDecorator={<ArrowDropDown />}>{posledniTahText}</MenuButton>
+                <Menu>
+                    {(lastMoveAfter || lastMoveBefore) && <>
+                        <MenuItem onClick={() => {setLastMoveAfter(undefined); props.setLastMoveAfter(undefined);  setLastMoveBefore(undefined); props.setLastMoveBefore(undefined)}}>
+                            Odstranit filtr
+                        </MenuItem>
+                        <ListDivider />
+                    </>}
+                    
+                    <MenuItem onClick={() => {setOpenLastMoveAfterDialog(true); props.setLastMoveAfter(undefined); setLastMoveAfter(undefined)}}>Po...</MenuItem>
+                    <MenuItem onClick={() => {setOpenLastMoveBeforeDialog(true); props.setLastMoveBefore(undefined); setLastMoveBefore(undefined)}}>Před...</MenuItem>
+                </Menu>
+            </Dropdown>
+
+            {/* Create date */}
+
+            <Dropdown>
+                <MenuButton endDecorator={<ArrowDropDown />}>{vytvorenText}</MenuButton>
+                <Menu>
+                    {(createdAfter || createdBefore) && <>
+                        <MenuItem onClick={() => {setCreatedAfter(undefined); props.setCreatedAfter(undefined);  setCreatedBefore(undefined); props.setCreatedBefore(undefined)}}>
+                            Odstranit filtr
+                        </MenuItem>
+                        <ListDivider />
+                    </>}
+                    
+                    <MenuItem onClick={() => {setOpenCreatedAfterDialog(true); props.setCreatedAfter(undefined); setCreatedAfter(undefined)}}>Po...</MenuItem>
+                    <MenuItem onClick={() => {setOpenCreatedBeforeDialog(true); props.setCreatedBefore(undefined); setCreatedBefore(undefined)}}>Před...</MenuItem>
+                </Menu>
+            </Dropdown>
+
+            <Input value={fulltextFilter} onChange={e => {setFulltextFilter(e.target.value); props.setFulltextFilter(e.target.value)}} placeholder="Hledat..." startDecorator={<Search />} />
+
+        </Stack>
+
+        {/* Modals */}
+
+        <Modal open={openLastMoveAfterDialog} onClose={() => setOpenLastMoveAfterDialog(false)}>
+            <ModalDialog>
+                <DialogTitle>Vyberte datum posledního tahu, odkud se mají hry zobrazovat</DialogTitle>
+                <ModalClose />
+                <Stack gap={1}>
+                    <Input type="date" value={lastMoveAfter?.toISOString().substring(0, 10)} onChange={e => {setLastMoveAfter(new Date(e.target.value)); props.setLastMoveAfter(new Date(e.target.value))}} placeholder="Datum..." />
+                    <Button onClick={() => setOpenLastMoveAfterDialog(false)}>OK</Button>
+                    <Button onClick={() => {setOpenLastMoveAfterDialog(false); setLastMoveAfter(undefined)}}>Smazat filtr</Button>
+                </Stack>
+            </ModalDialog>
+        </Modal>
+
+        <Modal open={openLastMoveBeforeDialog} onClose={() => setOpenLastMoveBeforeDialog(false)}>
+            <ModalDialog>
+                <DialogTitle>Vyberte datum posledního tahu, do kterého se mají hry zobrazovat</DialogTitle>
+                <ModalClose />
+                <Stack gap={1}>
+                    <Input type="date" value={lastMoveBefore?.toISOString().substring(0, 10)} onChange={e => {setLastMoveBefore(new Date(e.target.value)); props.setLastMoveBefore(new Date(e.target.value))}} placeholder="Datum..." />
+                    <Button onClick={() => setOpenLastMoveBeforeDialog(false)}>OK</Button>
+                    <Button onClick={() => {setOpenLastMoveBeforeDialog(false); setLastMoveBefore(undefined)}}>Smazat filtr</Button>
+                </Stack>
+            </ModalDialog>
+        </Modal>
+
+        {/* Created */}
+        
+        <Modal open={openCreatedAfterDialog} onClose={() => setOpenCreatedAfterDialog(false)}>
+            <ModalDialog>
+                <DialogTitle>Vyberte datum založení hry, odkud se mají hry zobrazovat</DialogTitle>
+                <ModalClose />
+                <Stack gap={1}>
+                    <Input type="date" value={createdAfter?.toISOString().substring(0, 10)} onChange={e => {setCreatedAfter(new Date(e.target.value)); props.setCreatedAfter(new Date(e.target.value))}} placeholder="Datum..." />
+                    <Button onClick={() => setOpenCreatedAfterDialog(false)}>OK</Button>
+                    <Button onClick={() => {setOpenCreatedAfterDialog(false); setCreatedAfter(undefined); props.setCreatedAfter(undefined)}}>Smazat filtr</Button>
+                </Stack>
+            </ModalDialog>
+        </Modal>
+
+        <Modal open={openCreatedBeforeDialog} onClose={() => setOpenCreatedBeforeDialog(false)}>
+            <ModalDialog>
+                <DialogTitle>Vyberte datum založení hry, do kterého se mají hry zobrazovat</DialogTitle>
+                <ModalClose />
+                <Stack gap={1}>
+                    <Input type="date" value={createdBefore?.toISOString().substring(0, 10)} onChange={e => {setCreatedBefore(new Date(e.target.value)); props.setCreatedBefore(new Date(e.target.value))}} placeholder="Datum..." />
+                    <Button onClick={() => setOpenCreatedBeforeDialog(false)}>OK</Button>
+                    <Button onClick={() => {setOpenCreatedBeforeDialog(false); setCreatedBefore(undefined); props.setCreatedBefore(undefined)}}>Smazat filtr</Button>
+                </Stack>
+            </ModalDialog>
+        </Modal>
+    </>
+
 }
 
 export default function Home(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
     const [existingGame, setExistingGame] = React.useState(false);
 
-    const [showLoginDialog, setShowLoginDialog] = React.useState(false);
-    const [showRegisterDialog, setShowRegisterDialog] = React.useState(false);
+    const [difficultyFilter, setDifficultyFilter] = useState<string | undefined>(undefined);
+    const [fulltextFilter, setFulltextFilter] = useState<string | undefined>(undefined);
+    const [gamestateFilter, setGamestateFilter] = useState<string | undefined>(undefined);
 
-    const [loggedIn, setLoggedIn] = React.useState(false);
-    const [loggedInUser, setLoggedInUser] = React.useState('');
+    const [lastMoveAfter, setLastMoveAfter] = useState<Date | undefined>(undefined);
+    const [lastMoveBefore, setLastMoveBefore] = useState<Date | undefined>(undefined);
 
-    useEffect(() => {
-        apiGet('/auth/status').then(x => {
-            if (x.status === 'ok') {
-                setLoggedIn(true);
-                setLoggedInUser(x.user);
-            }
-        });
-    }, [setLoggedIn, setLoggedInUser]);
+    const [createdAfter, setCreatedAfter] = useState<Date | undefined>(undefined);
+    const [createdBefore, setCreatedBefore] = useState<Date | undefined>(undefined);
+
+    const [page, setPage] = React.useState(1);
+    const lastPage = Math.ceil(props.games.length / 10);
 
     React.useEffect(() => {
         if (localStorage.getItem("game")) {
@@ -169,71 +351,58 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
         }
     }, [setExistingGame]);
 
-    const logout = () => {
-        apiGet('/auth/logout').then(() => {
-            setLoggedIn(false);
-            setLoggedInUser("");
-        });
-    }
-
     return (<>
         <Metadata title={'Úvodní stránka'} description={'Vítejte v Think different Academy!'}/>
-        <main className={`w-3/4 m-auto ${dosis.className}`}>
-            {/*TODO stylovat*/}
-            {loggedIn ? (
-                <>
-                    <span>{`Přihlášen/a jako ${loggedInUser}`}</span>
-                    <Button onClick={logout}>
-                        Odhlásit se
-                    </Button>
-                </>
-            ) : (
-                <>
-                    <Button onClick={() => setShowRegisterDialog(true)}>
-                        Registrovat
-                    </Button>
-                    <Button onClick={() => setShowLoginDialog(true)}>
-                        Přihlásit se
-                    </Button>
-                </>
-            )}
-            <div className={'m-6 text-center'}>
-                <Image src={Logo} alt={"Think different Academy"}/>
-            </div>
+        <main className={`w-3/4 m-auto`}>
+        
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
 
-            <div className={'m-auto text-center'}>
-                <Link href={'/game'}>
-                    <button className={'w-32 bg-[#0070BB] p-2 px-4 rounded-lg drop-shadow-md'}>
+            <Stack spacing={1}>
+                <Link href='/game'>
+                    <Button>
                         {existingGame ? `Pokračovat ve hře` : `Začít novou hru`}
-                    </button>
+                    </Button>
                 </Link>
-            </div>
 
-            {paginationButtons(props)}
+                <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
+                <FilterOptions setDifficultyFilter={setDifficultyFilter} setFulltextFilter={setFulltextFilter} setGamestateFilter={setGamestateFilter}
+                setLastMoveAfter={setLastMoveAfter} setLastMoveBefore={setLastMoveBefore} setCreatedAfter={setCreatedAfter} setCreatedBefore={setCreatedBefore} />
 
-            {props.games.map(x => {
-                if (!x.difficulty) return null;
+                {[...(props.games.filter(x => x.gameState !== "endgame")), ...(props.games.filter(x => x.gameState === "endgame"))]
+                    .filter(x => difficultyFilter ? difficultyFilter === x.difficulty : true)
+                    .filter(x => fulltextFilter ? x.name.toLowerCase().includes(fulltextFilter.toLowerCase()) : true)
+                    .filter(x => gamestateFilter ? gamestateFilter === x.gameState : true)
+                    .filter(x => lastMoveAfter ? Date.parse(x.updatedAt) > lastMoveAfter.getTime() : true)
+                    .filter(x => lastMoveBefore ? Date.parse(x.updatedAt) < lastMoveBefore.getTime() : true)
+                    .filter(x => createdAfter ? Date.parse(x.createdAt) > createdAfter.getTime() : true)
+                    .filter(x => createdBefore ? Date.parse(x.createdAt) < createdBefore.getTime() : true)
+                    .slice((page - 1) * 10, page * 10)
+                    .map(x => {
+                    if (!x.difficulty) {return null;}
 
-                return gameCard({
-                    uuid: x.uuid, name: x.name, createdAt: x.createdAt, updatedAt: x.updatedAt, difficulty: x.difficulty
-                })
-            })}
+                    return <GameCard key={x.uuid} uuid={x.uuid} name={x.name} createdAt={x.createdAt} updatedAt={x.updatedAt}
+                                     difficulty={x.difficulty} ended={x.gameState === "endgame"}/>
+                })}
 
-            {paginationButtons(props)}
+                <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
+            </Stack>
 
             <br/>
             <br/>
 
             <Link href={'/about'} className={'text-[#0070BB]'}>
-                O aplikaci Think different Academy
+                <Button>O aplikaci Think different Academy</Button>
             </Link>
 
-            <LoginDialog show={showLoginDialog} hide={() => setShowLoginDialog(false)}/>
-            <RegisterDialog show={showRegisterDialog} hide={() => setShowRegisterDialog(false)}/>
+            <br/>
+            <br/>
+            <br/>
 
-            <br/>
-            <br/>
-            <br/>
+            <Header />
         </main>
     </>);
 }

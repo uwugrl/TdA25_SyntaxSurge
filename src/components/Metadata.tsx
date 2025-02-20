@@ -22,6 +22,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import React from "react";
 import Head from "next/head";
 
 export default function Metadata(props: {

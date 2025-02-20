@@ -6,6 +6,7 @@ import localFont from "next/font/local";
 import GameDifficultyPicker from "@/components/Game/GameDifficultyPicker";
 import GameBoardFreeEdit from "@/components/Game/GameBoardFreeEdit";
 import {determineGameState} from "@/components/gameUtils";
+import React from "react";
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const uuid = ctx.params?.uuid as string | undefined;
@@ -13,8 +14,8 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         return {notFound: true}
     }
 
-    const prisma = new PrismaClient();
-    const game = await prisma.game.findUnique({
+    const prisma = new PrismaClient(),
+     game = await prisma.game.findUnique({
         where: {
             id: uuid
         }, include: {
@@ -22,7 +23,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     });
 
-    // game: {id, x, y, state, gameID}[]
+    // Game: {id, x, y, state, gameID}[]
 
     if (!game) {
         return {
@@ -30,8 +31,8 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     }
 
-    const board: ("X" | "O" | "")[][] = fromDbBoard(game.board);
-    const difficulty = fromDbDifficulty(game.difficulty);
+    const board: ("X" | "O" | "")[][] = fromDbBoard(game.board),
+     difficulty = fromDbDifficulty(game.difficulty);
 
     await prisma.$disconnect();
     return {
@@ -41,9 +42,9 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
                 name: game.name,
                 createdAt: game.createdAt.toISOString(),
                 updatedAt: game.updatedAt.toISOString(),
-                difficulty: difficulty,
+                difficulty,
                 dbDifficulty: game.difficulty,
-                board: board,
+                board,
                 gameState: determineGameState(board)
             }
         }

@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const {uuid} = req.query as { uuid: string };
 
     switch (req.method) {
-        case "GET":
+        case "GET":{
 
             await prisma.$connect();
             const user = await prisma.user.findFirst({
@@ -57,7 +57,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 losses: user.losses
             });
             break;
-        case "PUT":
+        }
+        case "PUT":{
             const {username, email, password, elo} = req.body;
 
             const existingUser = await prisma.user.findFirst({
@@ -127,7 +128,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
 
             break;
-        case "DELETE":
+        }
+        case "DELETE":{
 
             try {
                 await prisma.user.delete({
@@ -136,13 +138,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     }
                 });
                 res.status(204).end();
-            } catch (e) {
+            } catch {
                 res.status(404).json({
                     code: 404,
                     message: 'Resource not found'
                 });
             }
             break;
+        }
     }
 
     await prisma.$disconnect();

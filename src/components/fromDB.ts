@@ -20,7 +20,7 @@ export function fromDbBoard(inputBoard: {
     gameId: string;
     state: number;
 }[]) {
-    const outputBoard: ("X" | "O" | "")[][] = []; //board[x][y] = "X" | "O" | ""
+    const outputBoard: ("X" | "O" | "")[][] = []; //Board[x][y] = "X" | "O" | ""
 
     let currentRow: ("X" | "O" | "")[] = [];
 

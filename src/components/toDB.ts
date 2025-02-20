@@ -40,7 +40,7 @@ export function toDbDifficulty(difficulty: "beginner" | "easy" | "medium" | "har
         return 3;
     } else if (difficulty == "extreme") {
         return 4;
-    } else {
-        return "Invalid value";
-    }
+    } 
+    
+    return "Invalid value";  
 }

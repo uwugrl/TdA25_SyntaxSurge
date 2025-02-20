@@ -20,6 +20,7 @@
 import {Button, DialogTitle, Input, Modal, ModalClose, ModalDialog, Stack, Typography} from "@mui/joy";
 import {useState} from "react";
 import {apiGet, apiPost} from "@/components/frontendUtils";
+import React from "react";
 
 export default function LoginDialog(props: {
     show: boolean, hide: () => void
@@ -40,9 +41,10 @@ export default function LoginDialog(props: {
     const startLogin = () => {
         setLoading(true);
 
-        apiPost('/auth/login', {username, password}).then(x => {
+        apiPost('/auth/login', {username, password}).then(() => {
             apiGet('/auth/status').then(x => {
-                setUsername(x.user);
+                const y = x as {user: string}
+                setUsername(y.user);
                 setShowLoggedIn(true);
 
                 setTimeout(() => {

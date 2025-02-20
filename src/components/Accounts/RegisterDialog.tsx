@@ -22,6 +22,8 @@ import {ChangeEvent, useState} from "react";
 import {apiGet, apiPost} from "@/components/frontendUtils";
 import {passwordStrength} from "check-password-strength";
 
+import React from "react";
+
 export default function RegisterDialog(props: {
     show: boolean, hide: () => void
 }) {
@@ -42,18 +44,19 @@ export default function RegisterDialog(props: {
         }
     }
 
-    const catchError = (x: any) => {
+    const catchError = (x: unknown) => {
         setLoading(false);
-        setErrorMessage(x);
+        setErrorMessage(`${x}`);
     }
 
     const startRegister = () => {
         setLoading(true);
 
-        apiPost('/auth/register', {username, email, password}).then(x => {
-            apiPost('/auth/login', {username, password}).then(x => {
+        apiPost('/auth/register', {username, email, password}).then(() => {
+            apiPost('/auth/login', {username, password}).then(() => {
                 apiGet('/auth/status').then(x => {
-                    setUsername(x.user);
+                    const y = x as {user: string}
+                    setUsername(y.user);
                     setShowRegistered(true);
 
                     setTimeout(() => {

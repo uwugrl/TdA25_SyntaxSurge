@@ -1,7 +1,6 @@
 
 export function getNextSymbol(board: ("X" | "O" | "")[][]): ("X" | "O") {
-    let x = 0;
-    let o = 0;
+    let o = 0, x = 0;
 
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
@@ -17,8 +16,7 @@ export function getNextSymbol(board: ("X" | "O" | "")[][]): ("X" | "O") {
 }
 
 export function checkCorrectStartingPlayer(board: ("X" | "O" | "")[][]): boolean {
-    let x = 0;
-    let o = 0;
+    let o = 0, x = 0;
 
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
@@ -120,8 +118,8 @@ export function checkCorrectGameSize(board: ("X" | "O" | "")[][]): boolean {
 }
 
 export function determineGameState(board: ("X" | "O" | "")[][]): ("opening" | "midgame" | "endgame") {
-    const next = getNextSymbol(board);
-    const theoreticalWinner = evalWinner(board, 4);
+    const next = getNextSymbol(board),
+     theoreticalWinner = evalWinner(board, 4);
     if (theoreticalWinner === next) {
         return "endgame";
     }
@@ -130,8 +128,7 @@ export function determineGameState(board: ("X" | "O" | "")[][]): ("opening" | "m
         return "endgame";
     }
 
-    let x = 0;
-    let o = 0;
+    let o = 0, x = 0;
 
     for (let i = 0; i < board.length; i++) {
         for (let j = 0; j < board[i].length; j++) {
