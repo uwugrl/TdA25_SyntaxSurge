@@ -23,6 +23,13 @@ import {NextApiRequest, NextApiResponse} from "next";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const {token} = req.cookies;
 
+    if (!token) {
+        res.status(403).send({
+            error: 'Unauthorized'
+        });
+        return;
+    }
+
     const prisma = new PrismaClient();
     await prisma.$connect();
 
