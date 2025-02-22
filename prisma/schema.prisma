@@ -33,11 +33,13 @@ model User {
   createDate     DateTime @default(now())
   lastActiveDate DateTime @default(now())
   lastUpdateDate DateTime @default(now()) @updatedAt
-  elo           Int     @default(400)
-  wins          Int     @default(0)
-  draws         Int     @default(0)
-  losses        Int     @default(0)
-  administrator Boolean @default(false)
+  elo            Int      @default(400)
+  wins           Int      @default(0)
+  draws          Int      @default(0)
+  losses         Int      @default(0)
+  administrator  Boolean  @default(false)
+  banned         Boolean  @default(false)
+  banReason      String?
 
   userTokens UserTokens[]
 }

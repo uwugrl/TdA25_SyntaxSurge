@@ -23,17 +23,44 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 }
 
 export default function AdminPanel(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+
+    const [users, setUsers] = React.useState(props.users);
+
+    const markUserBanned = (id: string) => {
+        setUsers(
+            users.map(x => {
+                
+                if (x.id !== id) return x;
+
+                return {
+                    ...x,
+                    banned: true,
+                    banReason: ''
+                }
+            })
+        );
+    }
+
     return <main className={`w-3/4 m-auto ${dosis.className}`}>
         <Typography level="h1">Admin Panel</Typography>
         <Tabs>
             <TabList>
                 <Tab>Uživatelé</Tab>
+                <Tab>Zabanovaní Uživatelé</Tab>
             </TabList>
 
             <TabPanel value={0}>
                 <Stack gap={1}>
-                    {props.users.map(x => (
-                        <UserCard user={x} key={x.id} />
+                    {props.users.filter(x => !x.banned).map(x => (
+                        <UserCard user={x} key={x.id} userBanned={() => markUserBanned(x.id)} />
+                    ))}
+                </Stack>
+            </TabPanel>
+
+            <TabPanel value={1}>
+                <Stack gap={1}>
+                    {props.users.filter(x => x.banned).map(x => (
+                        <UserCard user={x} key={x.id} userBanned={() => markUserBanned(x.id)} />
                     ))}
                 </Stack>
             </TabPanel>

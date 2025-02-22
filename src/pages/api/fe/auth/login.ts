@@ -84,6 +84,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
+    if (user.banned) {
+        await client.$disconnect();
+        return res.status(403).send({
+            error: `Uživatel je zabanován: ${user.banReason}`
+        });
+    }
+
     const validateResult = await verify(user.password, password);
 
     if (!validateResult) {

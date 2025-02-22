@@ -17,48 +17,55 @@
  *
  */
 
+import { validateAdminAccount } from "@/components/backendUtils";
 import {PrismaClient} from "@prisma/client";
 import {NextApiRequest, NextApiResponse} from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const {token} = req.cookies;
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
+    if (!await validateAdminAccount(token)) return res.status(403).send({ error: 'Forbidden: Not an admin account' });
 
-    if (!token) {
-        res.status(403).send({
-            error: 'Unauthorized'
-        });
-        return;
-    }
+    const { userId, reason } = req.body as {userId: string, reason: string };
+
+    if (!reason || !userId) return res.status(400).send({ error: 'Missing parameters' });
 
     const prisma = new PrismaClient();
     await prisma.$connect();
 
-    const tokenRecord = await prisma.user.findFirst({
+    const acc = await prisma.user.findFirst({
         where: {
-            userTokens: {
-                some: {
-                    token
-                }
-            }
+            userId
+        }
+    });
+    if (!acc) return res.status(404).send({error: 'User not found.'});
+    if (acc.administrator) return res.status(400).send({error: 'Can\'t ban administrator account'});
+
+    const upd = await prisma.user.update({
+        data: {
+            banned: true,
+            banReason: reason
+        },
+        where: {
+            userId
         }
     });
 
-    if (!tokenRecord) {
-        res.status(403).send({
-            error: "Unauthorized"
+    // Revoke all sessions
+    await prisma.userTokens.deleteMany({
+        where: {
+            userId
+        }
+    });
+
+    if (upd) {
+        res.status(200).send({
+            status: 'ok'
         });
         return;
     }
 
-    if (tokenRecord.banned) {
-        return res.status(403).send({
-            error: `Uživatel je zabanován`
-        })
-    }
-
-    res.status(200).send({
-        status: 'ok',
-        user: tokenRecord.username,
-        email: tokenRecord.email
+    res.status(404).send({
+        error: 'User not found'
     });
 }

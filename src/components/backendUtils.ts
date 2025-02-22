@@ -47,6 +47,9 @@ export async function getUserList() {
         elo: x.elo,
         wins: x.wins,
         losses: x.losses,
-        draws: x.draws
+        draws: x.draws,
+        banned: x.banned,
+        banReason: x.banReason,
+        admin: x.administrator
     }));
 }
