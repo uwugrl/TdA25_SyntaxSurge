@@ -4,7 +4,7 @@ export function newBoard(): ("X" | "O" | "")[][] {
     for (let i = 0; i < 15; i++) {
         const a: ("X" | "O" | "")[] = [];
         for (let j = 0; j < 15; j++) {
-            a.push('');
+            a.push("");
         }
 
         list.push(a);
@@ -14,47 +14,47 @@ export function newBoard(): ("X" | "O" | "")[][] {
 }
 
 export function formatDate(d: Date): string {
-    let formattedDate = `${d.getDate()}. `
+    let formattedDate = `${d.getDate()}. `;
 
     switch (d.getMonth()) {
         case 0: // Nenavidim javascript, tohle je leden
-            formattedDate = `${formattedDate}ledna`
+            formattedDate = `${formattedDate}ledna`;
             break;
         case 1:
-            formattedDate = `${formattedDate}února`
+            formattedDate = `${formattedDate}února`;
             break;
         case 2:
-            formattedDate = `${formattedDate}března`
+            formattedDate = `${formattedDate}března`;
             break;
         case 3:
-            formattedDate = `${formattedDate}dubna`
-            break
+            formattedDate = `${formattedDate}dubna`;
+            break;
         case 4:
-            formattedDate = `${formattedDate}května`
-            break
+            formattedDate = `${formattedDate}května`;
+            break;
         case 5:
-            formattedDate = `${formattedDate}června`
+            formattedDate = `${formattedDate}června`;
             break;
         case 6:
-            formattedDate = `${formattedDate}července`
+            formattedDate = `${formattedDate}července`;
             break;
         case 7:
-            formattedDate = `${formattedDate}srpna`
-            break
+            formattedDate = `${formattedDate}srpna`;
+            break;
         case 8:
-            formattedDate = `${formattedDate}září`
+            formattedDate = `${formattedDate}září`;
             break;
         case 9:
-            formattedDate = `${formattedDate}října`
+            formattedDate = `${formattedDate}října`;
             break;
         case 10:
-            formattedDate = `${formattedDate}listopadu`
+            formattedDate = `${formattedDate}listopadu`;
             break;
         case 11:
-            formattedDate = `${formattedDate}prosince`
+            formattedDate = `${formattedDate}prosince`;
             break;
         default:
-            formattedDate = `${formattedDate}${d.getMonth()}` //Fallback
+            formattedDate = `${formattedDate}${d.getMonth()}`; //Fallback
             break;
     }
 

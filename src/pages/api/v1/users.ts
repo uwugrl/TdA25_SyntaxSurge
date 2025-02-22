@@ -21,7 +21,7 @@ import {NextApiRequest, NextApiResponse} from "next";
 import {hash} from "argon2";
 import {v4} from "uuid";
 import {PrismaClient} from "@prisma/client";
-import {validateUser} from "@/components/backendValidation";
+import {validateUser} from "@/components/backendUtils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 

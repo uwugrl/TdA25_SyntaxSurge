@@ -1,4 +1,3 @@
-
 export function fromDbDifficulty(difficulty: number) {
     if (difficulty == 0) {
         return "beginner";
@@ -13,13 +12,15 @@ export function fromDbDifficulty(difficulty: number) {
     }
 }
 
-export function fromDbBoard(inputBoard: {
-    x: number;
-    id: number;
-    y: number;
-    gameId: string;
-    state: number;
-}[]) {
+export function fromDbBoard(
+    inputBoard: {
+        x: number;
+        id: number;
+        y: number;
+        gameId: string;
+        state: number;
+    }[]
+) {
     const outputBoard: ("X" | "O" | "")[][] = []; //Board[x][y] = "X" | "O" | ""
 
     let currentRow: ("X" | "O" | "")[] = [];

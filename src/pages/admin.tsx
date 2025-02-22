@@ -47,6 +47,7 @@ export default function AdminPanel(props: InferGetServerSidePropsType<typeof get
             <TabList>
                 <Tab>Uživatelé</Tab>
                 <Tab>Zabanovaní Uživatelé</Tab>
+                <Tab>Hry</Tab>
             </TabList>
 
             <TabPanel value={0}>
@@ -63,6 +64,10 @@ export default function AdminPanel(props: InferGetServerSidePropsType<typeof get
                         <UserCard user={x} key={x.id} userBanned={() => markUserBanned(x.id)} />
                     ))}
                 </Stack>
+            </TabPanel>
+
+            <TabPanel value={2}>
+                
             </TabPanel>
         </Tabs>
     </main>

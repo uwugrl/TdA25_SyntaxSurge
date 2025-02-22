@@ -14,6 +14,10 @@ model Game {
   updatedAt  DateTime    @updatedAt
   difficulty Int
   board      GameBoard[]
+  player1ID  String?
+  player1    User?       @relation(name: "player1", fields: [player1ID], references: [userId])
+  player2ID  String?
+  player2    User?       @relation(name: "player2", fields: [player2ID], references: [userId])
 }
 
 model GameBoard {
@@ -41,7 +45,10 @@ model User {
   banned         Boolean  @default(false)
   banReason      String?
 
-  userTokens UserTokens[]
+  userTokens  UserTokens[]
+  Matchmaking Matchmaking[]
+  Game1       Game[]        @relation(name: "player1")
+  Game2       Game[]        @relation(name: "player2")
 }
 
 model UserTokens {
@@ -49,4 +56,11 @@ model UserTokens {
   userId  String
   user    User   @relation(fields: [userId], references: [userId])
   token   String
+}
+
+model Matchmaking {
+  id        Int    @id @default(autoincrement())
+  player1ID String
+  player1   User   @relation(fields: [player1ID], references: [userId])
+  difficulty Int
 }

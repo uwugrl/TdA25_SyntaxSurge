@@ -18,51 +18,57 @@
  */
 
 export async function apiGet(route: string): Promise<unknown> {
-
     return new Promise((resolve, reject) => {
         fetch(`/api/fe${route}`, {
-            method: 'GET'
-        }).then(x => {
-            x.json().then(data => {
-                if (x.ok) {
-                    resolve(data);
-                } else if (Object.prototype.hasOwnProperty.call(data, 'error')) {
-                        reject(`Error: ${x.statusText}: ${data.error}`);
-                    } else {
-                        reject(`Error: ${x.statusText}: ${data}`);
-                    }
-            }).catch(y => {
-                reject(`Error: ${x.statusText}: ${y}`);
-            });
-        }).catch(x => {
-            reject(`Error: ${x}`);
+            method: "GET",
         })
+            .then((x) => {
+                x.json()
+                    .then((data) => {
+                        if (x.ok) {
+                            resolve(data);
+                        } else if (Object.prototype.hasOwnProperty.call(data, "error")) {
+                            reject(`Error: ${x.statusText}: ${data.error}`);
+                        } else {
+                            reject(`Error: ${x.statusText}: ${data}`);
+                        }
+                    })
+                    .catch((y) => {
+                        reject(`Error: ${x.statusText}: ${y}`);
+                    });
+            })
+            .catch((x) => {
+                reject(`Error: ${x}`);
+            });
     });
-
 }
 
 export async function apiPost(route: string, obj: unknown): Promise<unknown> {
     return new Promise((resolve, reject) => {
         fetch(`/api/fe${route}`, {
-            method: 'POST',
+            method: "POST",
             body: JSON.stringify(obj),
             headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(x => {
-            x.json().then(data => {
-                if (x.ok) {
-                    resolve(data);
-                } else if (Object.prototype.hasOwnProperty.call(data, 'error')) {
-                        reject(`Error: ${x.statusText}: ${data.error}`);
-                    } else {
-                        reject(`Error: ${x.statusText}: ${data}`);
-                    }
-            }).catch(y => {
-                reject(`Error: ${x.statusText}: ${y}`);
-            });
-        }).catch(x => {
-            reject(`Error: ${x}`);
+                "Content-Type": "application/json",
+            },
         })
-    })
+            .then((x) => {
+                x.json()
+                    .then((data) => {
+                        if (x.ok) {
+                            resolve(data);
+                        } else if (Object.prototype.hasOwnProperty.call(data, "error")) {
+                            reject(`Error: ${x.statusText}: ${data.error}`);
+                        } else {
+                            reject(`Error: ${x.statusText}: ${data}`);
+                        }
+                    })
+                    .catch((y) => {
+                        reject(`Error: ${x.statusText}: ${y}`);
+                    });
+            })
+            .catch((x) => {
+                reject(`Error: ${x}`);
+            });
+    });
 }
