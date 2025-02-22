@@ -45,8 +45,6 @@ export default function Game() {
                     }
                 }).catch(setError);
             }, 1000);
-
-            
         }
     }, []);
 
@@ -65,8 +63,9 @@ export default function Game() {
             <br/>
             <br/>
             <br/>
-            <Typography>Hledání hry...</Typography>
-            <Typography>{formatSeconds()}</Typography>
+            {gameId === "" && <div className="text-center">
+                <Typography level="h3">Hledání hry... {formatSeconds()}</Typography>
+            </div>}
             {gameId === "" ||
                 <GameComponent gameId={gameId} gameTitle={title} board={board} gameDifficulty={difficulty}/>}
 

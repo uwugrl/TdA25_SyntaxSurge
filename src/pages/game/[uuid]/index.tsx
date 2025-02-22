@@ -1,15 +1,13 @@
 import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
-import {PrismaClient} from "@prisma/client";
+import {PrismaClient, User} from "@prisma/client";
 import {GetServerSidePropsContext, InferGetServerSidePropsType} from "next";
 import GameBoard from "@/components/Game/GameBoard";
 import localFont from "next/font/local";
 import {determineGameState, evalWinner} from "@/components/gameUtils";
-import Image from "next/image";
 import Metadata from "@/components/Metadata";
-import {useRouter} from "next/router";
 import React from "react";
 import Header from "@/components/Header";
-import { Button, Card, CardContent, Stack, Typography } from "@mui/joy";
+import { Card, CardContent, Stack, Typography } from "@mui/joy";
 
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
@@ -42,6 +40,16 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 
     // Identify what symbol should be next for the game
 
+    const winner = evalWinner(fromDbBoard(game.board));
+    let winnerUser: User | null = null;
+    if (winner === "X") {
+        winnerUser = await prisma.user.findFirst({where: {userId: game.player1ID ?? ''}}); 
+    } else if (winner === 'O') {
+        winnerUser = await prisma.user.findFirst({where: {userId: game.player2ID ?? ''}});
+    }
+
+    if (!winnerUser) return { notFound: true }
+
     await prisma.$disconnect();
     return {
         props: {
@@ -52,7 +60,10 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
                 updatedAt: game.updatedAt.toISOString(),
                 difficulty,
                 board,
-                gameState: determineGameState(board)
+                gameState: determineGameState(board),
+                winner: {
+                    username: winnerUser.username
+                }
             }
         }
     }
@@ -61,26 +72,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 const dosis = localFont({src: '../../fonts/Dosis-VariableFont_wght.ttf'});
 
 export default function ViewSavedGame(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
-
-    const router = useRouter();
-
     const winner = evalWinner(props.game.board, 5);
-
-    const getWinnerImage = () => {
-        switch (winner) {
-            case "X":
-                return <Image src={'/Icon/X_cervene.svg'} alt={'X'} width={16} height={16}/>;
-            case "O":
-                return <Image src={'/Icon/O_modre.svg'} alt={'O'} width={16} height={16}/>;
-            case "":
-                return null;
-        }
-    }
-
-    const takeOverGame = () => {
-        localStorage.setItem("game", props.game.uuid);
-        router.push('/game');
-    }
 
     return <>
         <Metadata title={props.game.name} description={'Hrajte piškvorky na Think different Academy ještě dnes!'}/>
@@ -99,15 +91,8 @@ export default function ViewSavedGame(props: InferGetServerSidePropsType<typeof 
                         {props.game.gameState === 'opening' && <Typography>Hra právě začala.</Typography>}
                         {props.game.gameState === 'midgame' && <Typography>Hra probíhá.</Typography>}
                         {winner === "" || <Stack direction="row" gap={1}>
-                            <Typography alignSelf="center">Hra skončila. Hru vyhráli</Typography>
-                            {getWinnerImage()}
+                            <Typography alignSelf="center">{`Hra skončila. Hru vyhrál/a ${props.game.winner.username}`}</Typography>
                         </Stack>}
-
-                        {props.game.gameState !== 'endgame' && <>
-                            <Typography color="danger">Převzít hru:</Typography>
-                            <Button onClick={takeOverGame} color="danger">Převzít hru</Button>
-                            <Typography fontSize="sm">Můžete převzít hru. Kliknutím na tlačítko převzetí hry můžete pokračovat hrát v této konkrétní hře</Typography>
-                        </>}
                     </Stack>
                 </CardContent>
             </Card>

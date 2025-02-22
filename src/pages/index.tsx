@@ -4,7 +4,6 @@ import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import Image from "next/image";
 import React, { useState } from "react";
 import Link from "next/link";
-import {useRouter} from "next/router";
 import {formatDate} from "@/components/base";
 import Metadata from "@/components/Metadata";
 import {Button, ButtonGroup, Card, DialogTitle, Dropdown, Input, ListDivider, Menu, MenuButton, MenuItem, Modal, ModalClose, ModalDialog, Stack, Typography} from "@mui/joy";
@@ -87,39 +86,14 @@ function GameCard(props: {
 
     const dateCreated = new Date(props.createdAt);
 
-    const router = useRouter()
-
-    const deleteGame = () => {
-        (async () => {
-            const result1 = await fetch(`/api/v1/games/${props.uuid}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (result1.ok)
-                router.reload()
-        })()
-    }
-
     return (<Card>
         <Typography level='h2' color={props.ended ? "neutral" : "success"}>{props.name}</Typography>
         <Image src={icon} alt={props.difficulty} height={32} width={32} className={'ml-2'}/>
-        <ButtonGroup>
-            <Link href={`/game/${props.uuid}`}>
-                <Button>
-                    Zobrazit hru
-                </Button>
-            </Link>
-
-            <Link href={`/game/${props.uuid}/edit`}>
-                <Button>
-                    Upravit hru
-                </Button>
-            </Link>
-            <Button onClick={deleteGame} color='danger' variant='solid'>Smazat hru</Button>
-        </ButtonGroup>
+        <Link href={`/game/${props.uuid}`}>
+            <Button variant="outlined" color="neutral">
+                Zobrazit hru
+            </Button>
+        </Link>
         <Typography level='body-sm'>{`Vytvořeno ${formatDate(dateCreated)}`}</Typography>
     </Card>)
 }
@@ -330,8 +304,6 @@ function FilterOptions(props: {
 
 export default function Home(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
-    const [existingGame, setExistingGame] = React.useState(false);
-
     const [difficultyFilter, setDifficultyFilter] = useState<string | undefined>(undefined);
     const [fulltextFilter, setFulltextFilter] = useState<string | undefined>(undefined);
     const [gamestateFilter, setGamestateFilter] = useState<string | undefined>(undefined);
@@ -345,12 +317,6 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
     const [page, setPage] = React.useState(1);
     const lastPage = Math.ceil(props.games.length / 10);
 
-    React.useEffect(() => {
-        if (localStorage.getItem("game")) {
-            setExistingGame(true);
-        }
-    }, [setExistingGame]);
-
     return (<>
         <Metadata title={'Úvodní stránka'} description={'Vítejte v Think different Academy!'}/>
         <main className={`w-3/4 m-auto`}>
@@ -362,11 +328,14 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
             <br/>
 
             <Stack spacing={1}>
-                <Link href='/game'>
-                    <Button>
-                        {existingGame ? `Pokračovat ve hře` : `Začít novou hru`}
-                    </Button>
-                </Link>
+                <Typography level="h2">Spusťte se do hry</Typography>
+                <div className="text-center">
+                    <Link href='/game'>
+                        <Button size="lg">Hrát!</Button>
+                    </Link>
+                </div>
+
+                <Typography level="h2">Seznam her</Typography>
 
                 <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
                 <FilterOptions setDifficultyFilter={setDifficultyFilter} setFulltextFilter={setFulltextFilter} setGamestateFilter={setGamestateFilter}
