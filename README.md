@@ -6,9 +6,9 @@ Apka pro nominační kolo soutěže [Tour de App](https://tourde.app/).
 
 - Michal
   Daněček (mldchan, mldkyt,
-  mld) - [Web](https://mldchan.dev/), [GitHub](https://github.com/mldchan), [git.mldchan.dev](https://git.mldchan.dev/mld), [Fedi](https://social.mldchan.dev/@mld)
+  mld) - [Web](https://mldchan.dev/), [GitHub](https://github.com/mldchan), [code.mldchan.dev](https://code.mldchan.dev/mld), [Fedi](https://social.mldchan.dev/@mld)
 - Kryštof Klíma (krystof,
-  Krysunka) - [git.mldchan.dev](https://git.mldchan.dev/Krysunka), [Fedi](https://social.mldchan.dev/@Krysunka)
+  Krysunka) - [code.mldchan.dev](https://code.mldchan.dev/Krysunka), [Fedi](https://social.mldchan.dev/@Krysunka)
 
 ## O aplikaci
 
