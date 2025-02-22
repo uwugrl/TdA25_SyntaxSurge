@@ -61,6 +61,7 @@ export default function UserCard(props: {
                 {props.user.admin && <Typography color="danger">Administrátor</Typography>}
                 <Typography>Email: {props.user.email}</Typography>
                 <Typography>ELO: {elo}</Typography>
+                {props.user.banned && props.user.banReason && <Typography color="danger">{`Důvod banu: ${props.user.banReason}`}</Typography>}
                 <Stack direction="row" gap={1}>
                     <Button onClick={() => setEloChange(true)}>Změnit ELO</Button>
                     {(!props.user.banned && !props.user.admin) && <Button onClick={() => setBan(true)} color="danger">Zabanovat</Button>}
