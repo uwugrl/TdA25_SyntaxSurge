@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getAccountFromToken } from "@/components/backendUtils";
+import { elo, getAccountFromToken } from "@/components/backendUtils";
 import { PrismaClient } from "@prisma/client";
 import { fromDbBoard, fromDbDifficulty } from "@/components/fromDB";
-import { evalWinner, getNextSymbol } from "@/components/gameUtils";
+import { evalWinner, getNextSymbol, isGameFull } from "@/components/gameUtils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { token } = req.cookies;
@@ -30,7 +30,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const game = games.find((x, i) => {
         if (i + 1 === games.length) return true;
-        if (evalWinner(fromDbBoard(x.board)) === "") return true; 
+        const board = fromDbBoard(x.board);
+        if (evalWinner(board) === "" && !isGameFull(board)) return true; 
         return false;
     });
 
@@ -39,6 +40,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             error: "Not in a game",
         });
     }
+
+    if (!game.player1ID || !game.player2ID) return res.status(500).send({error: 'Game is invalid.'});
 
     switch (req.method) {
         case 'GET':{
@@ -91,17 +94,67 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             if (nextPlaying === "X" && game.player1ID === player.userId) {
                 board[y][x] = "X";
+
+                if (evalWinner(board) === "X") {
+                    await prisma.user.update({
+                        where: { userId: game.player1ID },
+                        data: {
+                            wins: { increment: 1 }
+                        }
+                    });
+                    await prisma.user.update({
+                        where: { userId: game.player2ID },
+                        data: {
+                            losses: { increment: 1 }
+                        }
+                    })
+                    await elo(game.player1ID, game.player2ID, "w");
+                }
             }
 
             if (nextPlaying === "O" && game.player2ID === player.userId) {
                 board[y][x] = "O";
+
+                if (evalWinner(board) === "O") {
+                    await prisma.user.update({
+                        where: { userId: game.player1ID },
+                        data: {
+                            losses: { increment: 1 }
+                        }
+                    });
+                    await prisma.user.update({
+                        where: { userId: game.player2ID },
+                        data: {
+                            wins: { increment: 1 }
+                        }
+                    })
+                    await elo(game.player2ID, game.player1ID, 'w');
+                }
+            }
+
+            if (isGameFull(board)) {
+                await prisma.user.update({
+                    where: {
+                        userId: game.player1ID
+                    },
+                    data: {
+                        draws: { increment: 1 }
+                    }
+                });
+                await prisma.user.update({
+                    where: {
+                        userId: game.player2ID
+                    },
+                    data: {
+                        draws: { increment: 1 }
+                    }
+                });
+                await elo(game.player1ID, game.player2ID, 'd');
             }
 
             if ((nextPlaying === "X" && game.player2ID === player.userId) || (nextPlaying === "O" && game.player1ID === player.userId)) {
                 return res.status(400).send({error: 'Nejsi na tahu!'});
             }
-
-            board[y][x] = nextPlaying;
 
             const state = nextPlaying === "X" ? 1 : 2;
 

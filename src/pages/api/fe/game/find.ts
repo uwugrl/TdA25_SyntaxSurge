@@ -21,7 +21,7 @@ import { getAccountFromID, getAccountFromToken } from "@/components/backendUtils
 import { PrismaClient } from "@prisma/client";
 import { v4 } from "uuid";
 import { NextApiRequest, NextApiResponse } from "next";
-import { determineGameState } from "@/components/gameUtils";
+import { determineGameState, evalWinner } from "@/components/gameUtils";
 import { fromDbBoard } from "@/components/fromDB";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -36,10 +36,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const existingGames = await prisma.game.findMany({where: {OR: [{player1ID: player2.userId}, {player2ID: player2.userId}]}, include: {board: true}});
     const existingGame = existingGames.find(x => {
-        if (determineGameState(fromDbBoard(x.board)) !== "endgame") return true;
+        if (evalWinner(fromDbBoard(x.board)) === "") return true;
         return false;
     })
-    
+
     if (existingGame && determineGameState(fromDbBoard(existingGame.board)) !== "endgame") {
         await prisma.matchmaking.deleteMany({where: {player1ID: player2.userId}});
         return res.status(200).send({

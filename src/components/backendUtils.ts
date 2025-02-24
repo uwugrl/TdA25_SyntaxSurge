@@ -104,3 +104,30 @@ export function validateUser(username: string, email: string, password: string, 
     if (isNaN(Number(elo))) return "ELO is not a number";
     return true;
 }
+
+export async function elo(p1id: string, p2id: string, mode: 'w' | 'd') {
+    const prisma = new PrismaClient();
+    await prisma.$connect();
+
+    const player1 = await prisma.user.findUnique({ where: { userId: p1id } });
+    if (!player1) return;
+    const player2 = await prisma.user.findUnique({ where: { userId: p2id } });
+    if (!player2) return;
+
+    const Ra = player1.elo;
+    const Rb = player2.elo;
+    const Ea = 1 / (1 + 10 ** ((Rb - Ra) / 400));
+    const Eb = 1 / (1 + 10 ** ((Ra - Rb) / 400));
+    const factorA = 1 + 0.5 * (0.5 - ((player1.wins + player1.draws) / (player1.wins + player1.draws + player1.losses)));
+    const factorB = 1 + 0.5 * (0.5 - ((player2.wins + player2.draws) / (player2.wins + player2.draws + player2.losses)));
+    const scoreA = mode === 'd' ? 0.5 : 1;
+    const scoreB = mode === 'd' ? 0.5 : 0;
+    const RaNew = Ra + 40 * ((scoreA - Ea) * factorA);
+    const RbNew = Rb + 40 * ((scoreB - Eb) * factorB);
+
+    await prisma.user.update({ where: { userId: p1id }, data: { elo: Math.ceil(RaNew) } });
+    await prisma.user.update({ where: { userId: p2id }, data: { elo: Math.ceil(RbNew) } });
+
+    await prisma.$disconnect();
+}
+

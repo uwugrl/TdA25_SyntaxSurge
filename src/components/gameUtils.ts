@@ -146,5 +146,17 @@ export function determineGameState(board: ("X" | "O" | "")[][]): "opening" | "mi
         return "opening";
     }
 
+    if (isGameFull(board)) return "endgame";
+
     return "midgame";
+}
+
+export function isGameFull(board: ("X" | "O" | "")[][]): boolean {
+    for (const i of board) {
+        for (const j of i) {
+            if (j === "") return false;
+        }
+    }
+
+    return true;
 }

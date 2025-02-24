@@ -22,14 +22,30 @@ import Image from "next/image";
 import tda from '../Logo2.png';
 import localFont from "next/font/local";
 import { apiGet } from "./frontendUtils";
-import React from "react";
-import { Avatar, Button, Dropdown, Menu, MenuButton, MenuItem } from "@mui/joy";
+import React, { ReactNode } from "react";
+import { Avatar, Button, Dropdown, Menu, MenuButton, MenuItem, Stack } from "@mui/joy";
 import LoginDialog from "./Accounts/LoginDialog";
 import RegisterDialog from "./Accounts/RegisterDialog";
+import { useRouter } from "next/router";
 
 const dosis = localFont({ src: '../pages/fonts/Dosis-VariableFont_wght.ttf' });
 
-export default function Header() {
+function LinkButton(props:{href: string, children: ReactNode | ReactNode[]}) {
+    const router = useRouter();
+
+    const navigate = () => {
+        router.push(props.href);
+    }
+
+    return <Button onClick={navigate} variant="plain">
+        {props.children}
+    </Button>
+}
+
+export default function Header(props: {
+    forceOpenRegisterDialog?: boolean,
+    closeRegisterDialog?: () => void
+}) {
 
     const [loggedIn, setLoggedIn] = React.useState(false);
     const [loggedInUser, setLoggedInUser] = React.useState('');
@@ -50,7 +66,7 @@ export default function Header() {
 
     const refreshUserInformation = () => {
         apiGet('/auth/status').then(x => {
-            const y = x as {user: string, status: string}
+            const y = x as { user: string, status: string }
 
             if (y.status === 'ok') {
                 setLoggedIn(true);
@@ -60,7 +76,12 @@ export default function Header() {
     }
 
     return <div className={`${dosis.className} fixed flex flex-row justify-between gap-6 w-5/6 left-1/2 top-4 bg-[#080808ee] -translate-x-1/2 p-3 px-3 rounded-xl drop-shadow-xl`}>
-        <Image src={tda} alt={'Think different Academy logo'} width={173} height={144} />
+        <Stack direction='row' gap={2}>
+            <Image src={tda} alt={'Think different Academy logo'} width={173} height={144} />
+
+            <LinkButton href="/">Hry</LinkButton>
+            <LinkButton href="/accounts">Účty</LinkButton>
+        </Stack>
 
         <div className="flex flex-row items-center gap-6">
             {loggedIn ? (
@@ -83,6 +104,6 @@ export default function Header() {
         </div>
 
         <LoginDialog show={showLoginDialog} hide={() => { setShowLoginDialog(false); refreshUserInformation(); }} />
-        <RegisterDialog show={showRegisterDialog} hide={() => { setShowRegisterDialog(false); refreshUserInformation(); }} />
+        <RegisterDialog show={showRegisterDialog || (props.forceOpenRegisterDialog ?? false)} hide={() => { setShowRegisterDialog(false); refreshUserInformation(); if (props.closeRegisterDialog) props.closeRegisterDialog(); }} />
     </div>
 }

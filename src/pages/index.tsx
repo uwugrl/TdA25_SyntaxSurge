@@ -1,4 +1,4 @@
-import {InferGetServerSidePropsType} from "next";
+import {GetServerSidePropsContext, InferGetServerSidePropsType} from "next";
 import {PrismaClient} from "@prisma/client";
 import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import Image from "next/image";
@@ -6,12 +6,15 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {formatDate} from "@/components/base";
 import Metadata from "@/components/Metadata";
-import {Button, ButtonGroup, Card, DialogTitle, Dropdown, Input, ListDivider, Menu, MenuButton, MenuItem, Modal, ModalClose, ModalDialog, Stack, Typography} from "@mui/joy";
+import {Button, Card, DialogTitle, Dropdown, Input, ListDivider, Menu, MenuButton, MenuItem, Modal, ModalClose, ModalDialog, Stack, Typography} from "@mui/joy";
 import Header from "@/components/Header";
 import {ArrowDropDown, Search} from '@mui/icons-material';
 import { determineGameState } from "@/components/gameUtils";
+import { validateAccount } from "@/components/backendUtils";
+import { useRouter } from "next/router";
+import Pagination from "@/components/Pagination";
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const client = new PrismaClient();
     await client.$connect();
 
@@ -33,31 +36,15 @@ export async function getServerSideProps() {
 
     await client.$disconnect();
 
+    const { token } = ctx.req.cookies;
+    const loggedIn = await validateAccount(token ?? '');
+
     return {
         props: {
-            games
+            games,
+            loggedIn
         }
     }
-}
-
-function Pagination(props: {
-    lastPage: number,
-    page: number,
-    setPage: (page: number) => void
-}) {
-    if (props.lastPage === 0) {
-        return null;
-    }
-
-    return (<ButtonGroup>
-        <Button disabled={props.page <= 1} onClick={() => props.setPage(1)}>První strana</Button>
-        <Button disabled={props.page <= 1} onClick={() => props.setPage(props.page - 1)}>Předchozí
-            strana</Button>
-        <Button disabled>Strana {props.page} z {props.lastPage}</Button>
-        <Button disabled={props.page === props.lastPage} onClick={() => props.setPage(props.page + 1)}>Další strana</Button>
-        <Button disabled={props.page === props.lastPage} onClick={() => props.setPage(props.lastPage)}>Poslední
-            strana</Button>
-    </ButtonGroup>);
 }
 
 function GameCard(props: {
@@ -313,9 +300,21 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
 
     const [createdAfter, setCreatedAfter] = useState<Date | undefined>(undefined);
     const [createdBefore, setCreatedBefore] = useState<Date | undefined>(undefined);
+    
+    const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
 
     const [page, setPage] = React.useState(1);
     const lastPage = Math.ceil(props.games.length / 10);
+
+    const router = useRouter();
+
+    const play = () => {
+        if (props.loggedIn) {
+            router.push('/game');
+        } else {
+            setOpenRegisterDialog(true);
+        }
+    }
 
     return (<>
         <Metadata title={'Úvodní stránka'} description={'Vítejte v Think different Academy!'}/>
@@ -330,9 +329,7 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
             <Stack spacing={1}>
                 <Typography level="h2">Spusťte se do hry</Typography>
                 <div className="text-center">
-                    <Link href='/game'>
-                        <Button size="lg">Hrát!</Button>
-                    </Link>
+                    <Button size="lg" onClick={play}>Hrát!</Button>
                 </div>
 
                 <Typography level="h2">Seznam her</Typography>
@@ -371,7 +368,7 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
             <br/>
             <br/>
 
-            <Header />
+            <Header forceOpenRegisterDialog={openRegisterDialog} closeRegisterDialog={() => setOpenRegisterDialog(false)} />
         </main>
     </>);
 }
