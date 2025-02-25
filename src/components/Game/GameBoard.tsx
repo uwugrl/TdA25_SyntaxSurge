@@ -96,7 +96,10 @@ export default function GameBoard(params: {
     
     return (
         <>
-            <div ref={canvasParentRef}>
+            <div ref={canvasParentRef} style={{
+                maxWidth: '600px',
+                margin: 'auto'
+            }}>
                 <canvas ref={canvasRef}></canvas>
             </div>
         </>
