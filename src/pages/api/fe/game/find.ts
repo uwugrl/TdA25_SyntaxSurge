@@ -23,6 +23,7 @@ import { v4 } from "uuid";
 import { NextApiRequest, NextApiResponse } from "next";
 import { determineGameState, evalWinner } from "@/components/gameUtils";
 import { fromDbBoard } from "@/components/fromDB";
+import moment from "moment";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { token } = req.cookies;
@@ -33,6 +34,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const prisma = new PrismaClient();
     await prisma.$connect();
+
+    await prisma.matchmaking.deleteMany({
+        where: {
+            expires: {
+                gt: moment().toDate()
+            }
+        }
+    });
 
     const existingGames = await prisma.game.findMany({where: {OR: [{player1ID: player2.userId}, {player2ID: player2.userId}]}, include: {board: true}});
     const existingGame = existingGames.find(x => {
@@ -50,6 +59,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const game = await prisma.matchmaking.findFirst({where: {NOT: {player1ID: player2.userId}}});
 
     if (game) {
+        await prisma.matchmaking.update({
+            where: {
+                id: game.id
+            },
+            data: {
+                expires: moment().add(1, 'minute').toDate()
+            }
+        });
         const player1 = await getAccountFromID(game.player1ID);
         if (!player1) return res.status(400).send({ error: "Invalid game" });
         const board: { x: number; y: number; state: number }[] = [];
@@ -84,6 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             data: {
                 difficulty: 3,
                 player1ID: player2.userId,
+                expires: moment().add(1, 'minute').toDate()
             },
         });
     }
