@@ -2,7 +2,6 @@ import {GetServerSidePropsContext, InferGetServerSidePropsType} from "next";
 import {PrismaClient} from "@prisma/client";
 import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import React, { useState } from "react";
-import Link from "next/link";
 import Metadata from "@/components/Metadata";
 import {Button, DialogTitle, Dropdown, Input, ListDivider, Menu, MenuButton, MenuItem, Modal, ModalClose, ModalDialog, Stack, Typography} from "@mui/joy";
 import Header from "@/components/Header";
@@ -12,6 +11,7 @@ import { validateAccount } from "@/components/backendUtils";
 import { useRouter } from "next/router";
 import Pagination from "@/components/Pagination";
 import { GameCard } from "@/components/GameCard";
+import Footer from "@/components/Footer";
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const client = new PrismaClient();
@@ -322,15 +322,11 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
 
             <br/>
             <br/>
-
-            <Link href={'/about'} className={'text-[#0070BB]'}>
-                <Button>O aplikaci Think different Academy</Button>
-            </Link>
-
             <br/>
             <br/>
             <br/>
-
+            
+            <Footer />
             <Header forceOpenRegisterDialog={openRegisterDialog} closeRegisterDialog={() => setOpenRegisterDialog(false)} />
         </main>
     </>);
