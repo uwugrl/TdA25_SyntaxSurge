@@ -1,6 +1,6 @@
 import GameBoard from "@/components/Game/GameBoard";
 import {useEffect, useRef, useState} from "react";
-import {evalWinner, getNextSymbol} from "@/components/gameUtils";
+import {evalWinner} from "@/components/gameUtils";
 import {useRouter} from "next/router";
 import Link from "next/link";
 import { apiGet, apiPost } from "../frontendUtils";
@@ -15,7 +15,6 @@ export default function Game(params: {
     const gameRef = useRef<("X" | "O" | "")[][]>(params.board); //nesnasim react
 
     const [game, setGame] = useState(params.board);
-    const [nextMove, setNextMove] = useState<("X" | "O" | "")>(getNextSymbol(gameRef.current));
     const [winner, setWinner] = useState<("X" | "O" | "")>(evalWinner(gameRef.current, 5));
 
     const [isLoaded, setIsLoaded] = useState(true);
@@ -37,7 +36,6 @@ export default function Game(params: {
 
                     setGame(game.board);
                     gameRef.current = game.board;
-                    setNextMove(getNextSymbol(game.board));
                     setWinner(evalWinner(game.board, 5));
                     setOnMove(game.onMove);
                     setHasWon(game.winner);
@@ -85,22 +83,10 @@ export default function Game(params: {
 
     return (<>
         <h1 className={'text-3xl text-center font-bold'}>{params.gameTitle}</h1>
-        <GameBoard allowInteract={isLoaded} board={game} interact={handleInteraction}/>
-        {error && <Typography color="danger">{error}</Typography>}
-
-        {[0, 1].map((x) => <br key={x}/>)}
-
-        {onMove && <Typography>Hraješ!</Typography>}
 
         {winner === "" && (
             <>
-                <Card>
-                    <Stack direction='row' gap={1}>
-                        <Typography level="h3">Na tahu je:</Typography>
-                        {nextMove === "X" && <img src='/Icon/X_cervene.svg' alt='X' width={32} height={32}/>}
-                        {nextMove === "O" && <img src='/Icon/O_modre.svg' alt='O' width={32} height={32}/>}
-                    </Stack>
-                </Card>
+                {onMove ? <Typography fontSize="20px" color="success">Hraješ!</Typography> : <Typography fontSize="20px">Hraje protihráč...</Typography>}
             </>
         )}
         {winner === "" || (
@@ -117,6 +103,11 @@ export default function Game(params: {
             </>
         )}
 
+        {error && <Typography color="danger">{error}</Typography>}
+
+        <GameBoard allowInteract={isLoaded} board={game} interact={handleInteraction}/>
+
+        {[0, 1].map((x) => <br key={x}/>)}
 
         <br/>
 
