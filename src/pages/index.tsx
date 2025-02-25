@@ -290,9 +290,12 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
             <br/>
 
             <Stack spacing={1}>
-                <Typography level="h2">Spusťte se do hry</Typography>
                 <div className="text-center">
-                    <Button size="lg" onClick={play}>Hrát!</Button>
+                    <Button style={{
+                        width: '160px',
+                        height: '80px',
+                        fontSize: '120%'
+                    }} size="lg" onClick={play}>Hrát</Button>
                 </div>
 
                 <Typography level="h2">Seznam her</Typography>
