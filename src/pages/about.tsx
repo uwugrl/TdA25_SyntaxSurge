@@ -18,11 +18,12 @@
  */
 
 import Metadata from "@/components/Metadata";
-import Image from "next/image";
-import Logo from "@/Logo.png";
 import React from "react";
 import localFont from "next/font/local";
 import Link from "next/link";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Stack, Typography } from "@mui/joy";
 
 const dosis = localFont({src: './fonts/Dosis-VariableFont_wght.ttf'});
 
@@ -31,49 +32,52 @@ export default function About() {
         <>
             <Metadata title={'O aplikaci'} description={'O aplikaci Think different Academy!'}/>
             <main className={`w-3/4 m-auto ${dosis.className}`}>
-                <div className={'m-6 text-center'}>
-                    <Image src={Logo} alt={"Think different Academy"}/>
-                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
 
                 <Link href={'/'} className={'text-[#0070BB]'}>
                     Zpět do aplikace
                 </Link>
 
-                <h1 className={'text-center text-3xl font-bold'}>O naší aplikaci</h1>
+                <Stack gap={2}>
+                    <Typography level="h1" textAlign="center">O naší aplikaci</Typography>
 
-                <p className={'my-2'}>Aplikace Think different Academy vám umožňuje hrát piškvorky.</p>
+                    <Typography>Aplikace Think different Academy vám umožňuje hrát piškvorky.</Typography>
 
-                <p className={'my-2'}>
-                    Tento program je svobodný software: můžete jej šířit a/nebo upravovat za podmínek licence GNU Affero
-                    General Public License, jak je uvedeno níže, vydané Free Software Foundation, a to buď ve verzi 3,
-                    nebo ve verzi 2, nebo jakoukoli pozdější verzi.
-                </p>
-                <p className={'my-2'}>
-                    Tento program je šířen v naději, že bude užitečný, ale BEZ JAKÉKOLI ZÁRUKY; dokonce ani bez
-                    předpokládané záruky PRODEJNOSTI nebo VHODNOSTI PRO KONKRÉTNÍ ÚČEL. Viz. GNU Affero General Public
-                    License, kde najdete další podrobnosti.
-                </p>
-                <p className={'my-2'}>
-                    Měli jste obdržet kopii GNU Affero General Public License spolu s tímto programem. Pokud ne,
-                    podívejte se na &lt;https://www.gnu.org/licenses/&gt;.
-                </p>
-                <Link href={'https://git.mldchan.dev/mld/tda25_syntaxsurge'} className={'text-[#0070BB]'}>Zobrazit
-                    zdrojový kód</Link>
-                <p>Tuto aplikaci vytvořili Michal Daněček a Kryštof Klíma.</p>
-                <ul className={'list-disc ml-4'}>
-                    <li className={'flex flex-row gap-2'}>
-                        {`Michal Daněček - `}
-                        <Link href={'https://social.mldchan.dev/@mld'} className={'text-[#0070BB]'}>Fedi</Link>
-                        <Link href={'https://git.mldchan.dev/mld'} className={'text-[#0070BB]'}>GitLab</Link>
-                        <Link href={'https://github.com/mldchan'} className={'text-[#0070BB]'}>GitHub</Link>
-                        <Link href={'https://youtube.com/@mldchan'} className={'text-[#0070BB]'}>YouTube</Link>
-                    </li>
-                    <li className={'flex flex-row gap-2'}>
-                        {`Kryštof Klíma - `}
-                        <Link href={'https://social.mldchan.dev/@Krysunka'} className={'text-[#0070BB]'}>Fedi</Link>
-                        <Link href={'https://git.mldchan.dev/Krysunka'} className={'text-[#0070BB]'}>GitLab</Link>
-                    </li>
-                </ul>
+                    <Typography>
+                        Tento program je svobodný software: můžete jej šířit a/nebo upravovat za podmínek licence GNU Affero
+                        General Public License, jak je uvedeno níže, vydané Free Software Foundation, a to buď ve verzi 3,
+                        nebo ve verzi 2, nebo jakoukoli pozdější verzi.
+                    </Typography>
+                    <Typography>
+                        Tento program je šířen v naději, že bude užitečný, ale BEZ JAKÉKOLI ZÁRUKY; dokonce ani bez
+                        předpokládané záruky PRODEJNOSTI nebo VHODNOSTI PRO KONKRÉTNÍ ÚČEL. Viz. GNU Affero General Public
+                        License, kde najdete další podrobnosti.
+                    </Typography>
+                    <Link href={'https://code.mldchan.dev/mld/tda25_syntaxsurge'} className={'text-[#0070BB]'}>Zobrazit
+                        zdrojový kód</Link>
+                    <Typography>Tuto aplikaci vytvořili Michal Daněček a Kryštof Klíma z týmu Syntax Surge.</Typography>
+                    <ul className={'list-disc ml-4'}>
+                        <li className={'flex flex-row gap-2'}>
+                            <Typography>Michal Daněček - </Typography>
+                            <Link href={'https://social.mldchan.dev/@mld'} className={'text-[#0070BB]'}>Fedi</Link>
+                            <Link href={'https://code.mldchan.dev/mld'} className={'text-[#0070BB]'}>Forgejo</Link>
+                            <Link href={'https://github.com/mldchan'} className={'text-[#0070BB]'}>GitHub</Link>
+                            <Link href={'https://youtube.com/@mldchan'} className={'text-[#0070BB]'}>YouTube</Link>
+                        </li>
+                        <li className={'flex flex-row gap-2'}>
+                            <Typography>Kryštof Klíma - </Typography>
+                            <Link href={'https://social.mldchan.dev/@Krysunka'} className={'text-[#0070BB]'}>Fedi</Link>
+                            <Link href={'https://code.mldchan.dev/Krysunka'} className={'text-[#0070BB]'}>Forgejo</Link>
+                        </li>
+                    </ul>
+                </Stack>
+
+                <Footer />
+                <Header />
             </main>
         </>
     )
