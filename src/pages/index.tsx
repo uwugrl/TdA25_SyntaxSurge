@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import Pagination from "@/components/Pagination";
 import { GameCard } from "@/components/GameCard";
 import Footer from "@/components/Footer";
+import { apiGet } from "@/components/frontendUtils";
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const client = new PrismaClient();
@@ -272,11 +273,12 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
     const router = useRouter();
 
     const play = () => {
-        if (props.loggedIn) {
-            router.push('/game');
-        } else {
+
+        apiGet('/auth/status').then(() => {
+            router.push('/game');     
+        }).catch(() => {
             setOpenRegisterDialog(true);
-        }
+        });
     }
 
     return (<>
