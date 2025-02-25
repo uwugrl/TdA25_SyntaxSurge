@@ -43,24 +43,24 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
             <br />
             <br />
 
-            <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
 
             <Stack gap={1}>
+                <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
                 {props.users
                     .slice((page - 1) * 10, page * 10)
                     .map((x, i) => (
-                    <Card key={i}>
-                        <Typography level='h2'>{x.name}</Typography>
-                        <Link href={`/account/${x.uuid}`}>
-                            <Button variant="outlined" color="neutral">
-                                Zobrazit profil
-                            </Button>
-                        </Link>
-                    </Card>
-                ))}
+                        <Card key={i}>
+                            <Typography level='h2'>{x.name}</Typography>
+                            <Link href={`/account/${x.uuid}`}>
+                                <Button variant="outlined" color="neutral">
+                                    Zobrazit profil
+                                </Button>
+                            </Link>
+                        </Card>
+                    ))}
+                <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
             </Stack>
 
-            <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
 
             <Header />
         </main>

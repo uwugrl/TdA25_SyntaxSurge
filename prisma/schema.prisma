@@ -44,6 +44,7 @@ model User {
   administrator  Boolean  @default(false)
   banned         Boolean  @default(false)
   banReason      String?
+  aboutMe        String   @default("")
 
   userTokens  UserTokens[]
   Matchmaking Matchmaking[]
