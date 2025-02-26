@@ -48,6 +48,11 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
         router.push('/settings');
     }
 
+    const wlRatioFinal = props.wins / props.losses === Infinity ? '0%' : (
+        props.wins > props.losses ? `${~~((props.losses / props.wins) * 100)}%` :
+                                    `${~~((props.wins / props.losses) * 100)}%`
+    );
+
     return <>
         <Metadata title={'Účet'} description={'Profil uživatele'}/>
         <main className={`w-3/4 m-auto`}>
@@ -60,9 +65,32 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
             <Stack gap={1}>
                 <Typography level="h1" textAlign="center">{props.name}</Typography>
                 {props.isSelf && <Button onClick={settings}>Upravit profil</Button>}
-                <Typography>{props.about || 'Uživatel nic o sobě nenapsal/a.'}</Typography>
-                <Typography>{`ELO: ${props.elo}`}</Typography>
-                <Typography>{`${props.wins} výher, ${props.losses} proher a ${props.draws} remíz`}</Typography>
+                <div className="m-auto text-center">
+                    <Typography>{props.about || 'Uživatel nic o sobě nenapsal/a.'}</Typography>
+                    
+                    <Stack gap={1} direction="row" sx={{marginTop: '2em'}}>
+                        <Stack gap={1} width="100px" height="100px">
+                            <Typography fontWeight="bold">ELO</Typography>
+                            <Typography fontSize="24px">{props.elo}</Typography>
+                        </Stack>
+                        <Stack gap={1} width="100px" height="100px">
+                            <Typography fontWeight="bold">Wins</Typography>
+                            <Typography fontSize="24px">{props.wins}</Typography>
+                        </Stack>
+                        <Stack gap={1} width="100px" height="100px">
+                            <Typography fontWeight="bold">Losses</Typography>
+                            <Typography fontSize="24px">{props.losses}</Typography>
+                        </Stack>
+                        <Stack gap={1} width="100px" height="100px">
+                            <Typography fontWeight="bold">Draws</Typography>
+                            <Typography fontSize="24px">{props.draws}</Typography>
+                        </Stack>
+                        <Stack gap={1} width="100px" height="100px">
+                            <Typography fontWeight="bold">W/L ratio</Typography>
+                            <Typography fontSize="24px">{wlRatioFinal}</Typography>
+                        </Stack>
+                    </Stack>
+                </div>
             </Stack>
             <Header />
         </main>

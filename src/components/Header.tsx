@@ -86,6 +86,7 @@ export default function Header(props: {
     const navigateToProfile = () => {
         router.push(`/account/${loggedInUserID}`);
     }
+    
     const navigateToSettings = () => {
         router.push('/settings');
     }
