@@ -23,7 +23,7 @@ import tda from '../Logo2.png';
 import localFont from "next/font/local";
 import { apiGet } from "./frontendUtils";
 import React, { ReactNode } from "react";
-import { Avatar, Button, Dropdown, Menu, MenuButton, MenuItem, Stack } from "@mui/joy";
+import { Avatar, Button, Divider, Dropdown, Menu, MenuButton, MenuItem, Stack } from "@mui/joy";
 import LoginDialog from "./Accounts/LoginDialog";
 import RegisterDialog from "./Accounts/RegisterDialog";
 import { useRouter } from "next/router";
@@ -81,6 +81,10 @@ export default function Header(props: {
         router.push('/');
     }
 
+    const navigateToProfile = () => {
+        router.push('/settings');
+    }
+
     return <div className={`${dosis.className} fixed flex flex-row justify-between gap-6 w-5/6 left-1/2 top-4 bg-[#080808ee] -translate-x-1/2 p-3 px-3 rounded-xl drop-shadow-xl`}>
         <Stack direction='row' gap={2}>
             <Image onClick={navigateToHome} src={tda} alt={'Think different Academy logo'} className="cursor-pointer" width={173} height={144} />
@@ -97,6 +101,8 @@ export default function Header(props: {
                             <Avatar>{loggedInUser[0]}</Avatar>
                         </MenuButton>
                         <Menu>
+                            <MenuItem onClick={navigateToProfile}>Profil</MenuItem>
+                            <Divider />
                             <MenuItem color="danger" onClick={signOut}>Odhlásit se</MenuItem>
                         </Menu>
                     </Dropdown>

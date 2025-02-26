@@ -8,6 +8,7 @@ import { InferGetServerSidePropsType } from "next";
 import { useState } from "react";
 import Pagination from '@/components/Pagination';
 import { ArrowDropDown, Search } from "@mui/icons-material";
+import Footer from "@/components/Footer";
 
 
 export async function getServerSideProps() {
@@ -124,6 +125,7 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
 
 
             <Header />
+            <Footer />
         </main>
     </>
 }

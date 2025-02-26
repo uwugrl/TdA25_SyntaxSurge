@@ -175,10 +175,12 @@ function ProfileSecurity() {
 function ProfileGames (props: {
     games: { uuid: string, name: string, difficulty: string, createdAt: string, updatedAt: string, gameState: "opening" | "midgame" | "endgame" }[]
 }) {
-    return props.games.map(x => (
-        <GameCard key={x.uuid} uuid={x.uuid} name={x.name} createdAt={x.createdAt} updatedAt={x.updatedAt}
-    difficulty={x.difficulty} ended={x.gameState === "endgame"}/>
-    ))
+    return <Stack gap={1}>
+        {props.games.map(x => (
+            <GameCard key={x.uuid} uuid={x.uuid} name={x.name} createdAt={x.createdAt} updatedAt={x.updatedAt}
+        difficulty={x.difficulty} ended={x.gameState === "endgame"}/>
+        ))}
+    </Stack>
 }
 
 export async function getServerSideProps(ctx:GetServerSidePropsContext) {
