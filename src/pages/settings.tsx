@@ -13,10 +13,12 @@ import React, { useState } from "react"
 
 
 function ProfileSettings(props: {
+    username: string,
     email: string,
     aboutMe: string
 }) {
 
+    const [username, setUsername] = useState(props.username);
     const [email, setEmail] = React.useState(props.email);
     const [aboutMe, setAboutMe] = React.useState("");
 
@@ -30,7 +32,8 @@ function ProfileSettings(props: {
         setError("");
 
         apiPost('/user/profile', {
-            email
+            email,
+            username
         }).then(() => {
             setLoading(false);
             setSuccess(true);
@@ -43,6 +46,9 @@ function ProfileSettings(props: {
     return <>
         <Stack gap={1}>
             <Typography level="h1">Nastavení profilu</Typography>
+
+            <Typography>Uživatelské jméno</Typography>
+            <Input type="text" disabled={loading} value={username} onChange={x => setUsername(x.currentTarget.value)} />
 
             <Typography>E-mailová adresa</Typography>
             <Input type="email" disabled={loading} value={email} onChange={x => setEmail(x.currentTarget.value)} />
@@ -211,6 +217,7 @@ export async function getServerSideProps(ctx:GetServerSidePropsContext) {
     return {
         props: {
             user: {
+                username: user.username,
                 email: user.email,
                 aboutMe: user.aboutMe,
                 games: games.map(x => ({
@@ -247,7 +254,7 @@ export default function Settings(props: InferGetServerSidePropsType<typeof getSe
                     </TabList>
 
                     <TabPanel value={0}>
-                        <ProfileSettings email={props.user.email} aboutMe={props.user.aboutMe} />
+                        <ProfileSettings email={props.user.email} username={props.user.username} aboutMe={props.user.aboutMe} />
                     </TabPanel>
 
                     <TabPanel value={1}>

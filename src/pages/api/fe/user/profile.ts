@@ -46,9 +46,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
-    const { email } = req.body;
+    const { email, username } = req.body;
 
-    if (!email) {
+    if (!email || !username) {
         return res.status(400).send({error: 'Missing parameters'});
     }
 
@@ -57,7 +57,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             userId: tokenRecord.userId
         },
         data: {
-            email
+            email,
+            username
         }
     });
 
