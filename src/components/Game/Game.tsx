@@ -73,7 +73,7 @@ export default function Game(params: {
 
     const newGame = () => {
         localStorage.removeItem("game");
-        router.reload();
+        location.href = '/game';
     }
 
     const mainMenu = () => {
