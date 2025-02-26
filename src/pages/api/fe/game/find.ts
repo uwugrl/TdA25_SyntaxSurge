@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await prisma.matchmaking.deleteMany({
         where: {
             expires: {
-                gt: moment().toDate()
+                lt: moment().toDate()
             }
         }
     });
