@@ -110,7 +110,7 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
                             <tr key={x.uuid}>
                                 <td>{x.name}</td>
                                 <td>
-                                    <Link href={`/accounts/${x.uuid}`}><Button variant="plain">Zobrazit uživatele</Button></Link>
+                                    <Link href={`/account/${x.uuid}`}><Button variant="plain">Zobrazit uživatele</Button></Link>
                                 </td>
                                 <td>{x.elo}</td>
                                 <td>{`${x.wins}/${x.draws}/${x.losses}`}</td>
