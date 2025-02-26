@@ -13,6 +13,7 @@ export default function Game(params: {
 }) {
 
     const gameRef = useRef<("X" | "O" | "")[][]>(params.board); //nesnasim react
+    const gameId = useRef('');
 
     const [game, setGame] = useState(params.board);
     const [winner, setWinner] = useState<("X" | "O" | "")>(evalWinner(gameRef.current, 5));
@@ -39,6 +40,7 @@ export default function Game(params: {
 
                     setGame(game.board);
                     gameRef.current = game.board;
+                    gameId.current = game.gameId;
                     setWinner(evalWinner(game.board, 5));
                     setOnMove(game.onMove);
                     setHasWon(game.winner);
@@ -78,7 +80,11 @@ export default function Game(params: {
 
     const newGame = () => {
         localStorage.removeItem("game");
-        location.href = '/game';
+        apiPost('/game/find', {
+            code: gameId.current
+        }).then(() => {
+            location.href = '/game';
+        });
     }
 
     const mainMenu = () => {
@@ -111,7 +117,7 @@ export default function Game(params: {
                         <Typography level="h3" alignSelf="center">{hasWon ? 'Vyhrál jsi!' : 'Prohrál jsi.'}</Typography>
                     </Stack>
                     <Stack direction="row" gap={1}>
-                        <Button onClick={newGame}>Nová hra</Button>
+                        <Button onClick={newGame}>Hrát znovu s aktuálním hráčem</Button>
                         <Button onClick={mainMenu}>Hlavní menu</Button>
                     </Stack>
                 </Stack>

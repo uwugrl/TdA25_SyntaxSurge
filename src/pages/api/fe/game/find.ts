@@ -37,6 +37,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         difficulty = Number(req.body.difficulty);
     }
 
+    let gameCode = '';
+    if (req.method === 'POST' && req.headers["content-type"] === 'application/json' && req.body && req.body.code) {
+        gameCode = req.body.code;
+    }
+
     const prisma = new PrismaClient();
     await prisma.$connect();
 
@@ -61,7 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
     }
 
-    const game = await prisma.matchmaking.findFirst({where: {NOT: {player1ID: player2.userId}, difficulty}});
+    const game = await prisma.matchmaking.findFirst({where: {NOT: {player1ID: player2.userId}, difficulty, code: gameCode}});
 
     if (game) {
         await prisma.matchmaking.update({
@@ -106,7 +111,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             data: {
                 difficulty,
                 player1ID: player2.userId,
-                expires: moment().add(1, 'minute').toDate()
+                expires: moment().add(1, 'minute').toDate(),
+                code: gameCode
             },
         });
     }
