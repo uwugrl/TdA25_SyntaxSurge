@@ -63,7 +63,6 @@ model Matchmaking {
   id         Int      @id @default(autoincrement())
   player1ID  String
   player1    User     @relation(fields: [player1ID], references: [userId])
-  difficulty Int
   expires    DateTime
   code       String   @default("")
 }
