@@ -32,6 +32,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const player2 = await getAccountFromToken(token);
     if (!player2) return res.status(403).send({ error: "Unauthorized" });
 
+    let difficulty = 3;
+    if (req.method === 'POST' && req.headers["content-type"] === "application/json" && req.body.difficulty && !isNaN(Number(req.body.difficulty))) {
+        difficulty = Number(req.body.difficulty);
+    }
+
     const prisma = new PrismaClient();
     await prisma.$connect();
 
@@ -56,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
     }
 
-    const game = await prisma.matchmaking.findFirst({where: {NOT: {player1ID: player2.userId}}});
+    const game = await prisma.matchmaking.findFirst({where: {NOT: {player1ID: player2.userId}, difficulty}});
 
     if (game) {
         await prisma.matchmaking.update({
@@ -99,7 +104,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (await prisma.matchmaking.count({where: {player1ID: player2.userId}}) === 0) {
         await prisma.matchmaking.create({
             data: {
-                difficulty: 3,
+                difficulty,
                 player1ID: player2.userId,
                 expires: moment().add(1, 'minute').toDate()
             },

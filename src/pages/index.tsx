@@ -8,11 +8,11 @@ import Header from "@/components/Header";
 import {ArrowDropDown, Search} from '@mui/icons-material';
 import { determineGameState } from "@/components/gameUtils";
 import { validateAccount } from "@/components/backendUtils";
-import { useRouter } from "next/router";
 import Pagination from "@/components/Pagination";
 import { GameCard } from "@/components/GameCard";
 import Footer from "@/components/Footer";
-import { apiGet } from "@/components/frontendUtils";
+import { apiPost } from "@/components/frontendUtils";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const client = new PrismaClient();
@@ -270,14 +270,17 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
     const [page, setPage] = React.useState(1);
     const lastPage = Math.ceil(props.games.length / 10);
 
+    const play = () => {
+        setOpenRegisterDialog(true);
+    }
+
     const router = useRouter();
 
-    const play = () => {
-
-        apiGet('/auth/status').then(() => {
-            router.push('/game');     
-        }).catch(() => {
-            setOpenRegisterDialog(true);
+    const playLoggedIn = (difficulty: number) => {
+        apiPost('/game/find', {
+            difficulty
+        }).then(() => {
+            router.push('/game');
         });
     }
 
@@ -293,11 +296,28 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
 
             <Stack spacing={1}>
                 <div className="text-center">
-                    <Button style={{
-                        width: '160px',
-                        height: '80px',
-                        fontSize: '120%'
-                    }} size="lg" onClick={play}>Hrát</Button>
+                    {
+                        props.loggedIn ? <Dropdown>
+                            <MenuButton style={{
+                                width: '160px',
+                                height: '80px',
+                                fontSize: '120%'
+                            }} size="lg" color="primary" variant="solid">
+                                Hrát
+                            </MenuButton>
+                            <Menu>
+                                <MenuItem onClick={() => playLoggedIn(0)}>Začátečník</MenuItem>
+                                <MenuItem onClick={() => playLoggedIn(1)}>Jednoduchá</MenuItem>
+                                <MenuItem onClick={() => playLoggedIn(2)}>Pokročilá</MenuItem>
+                                <MenuItem onClick={() => playLoggedIn(3)}>Těžká</MenuItem>
+                                <MenuItem onClick={() => playLoggedIn(4)}>Nejtěžší</MenuItem>
+                            </Menu>
+                        </Dropdown> : <Button style={{
+                            width: '160px',
+                            height: '80px',
+                            fontSize: '120%'
+                        }} size="lg" onClick={play}>Hrát</Button>
+                    }
                 </div>
 
                 <Typography level="h2">Seznam her</Typography>
