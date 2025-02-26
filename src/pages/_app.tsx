@@ -11,6 +11,12 @@ const theme = extendTheme({
         body: dosis.style.fontFamily,
         display: dosis.style.fontFamily
     },
+    fontSize: {
+        sm: '16px',
+        md: '18px',
+        lg: '20px',
+        xl: '24px'
+    },
     colorSchemes: {
         dark: {
             palette: {
