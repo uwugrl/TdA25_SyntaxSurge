@@ -6,7 +6,7 @@ import Link from "next/link";
 import { apiGet, apiPost } from "../frontendUtils";
 
 import React from "react";
-import { Avatar, Button, Card, Stack, Typography } from "@mui/joy";
+import { Avatar, Button, Stack, Typography } from "@mui/joy";
 
 export default function Game(params: {
     gameId: string, gameTitle: string, board: ("X" | "O" | "")[][], gameDifficulty: string
@@ -87,12 +87,17 @@ export default function Game(params: {
     }
 
     return (<>
-        <h1 className={'text-3xl text-center font-bold'}>{params.gameTitle}</h1>
-        <Typography>
-            <Avatar>{player1Name[0]}</Avatar>
-            vs
-            <Avatar>{player2Name[0]}</Avatar>
-        </Typography>
+        <div className="m-auto">
+            <Typography level="h1">
+                <Stack direction="row" gap={1} alignItems="center">
+                    <Avatar>{player1Name[0]}</Avatar>
+                    <Typography>{player1Name}</Typography>
+                    vs
+                    <Avatar>{player2Name[0]}</Avatar>
+                    <Typography>{player2Name}</Typography>
+                </Stack>
+            </Typography>
+        </div>
 
         {winner === "" && (
             <>
@@ -101,7 +106,7 @@ export default function Game(params: {
         )}
         {winner === "" || (
             <>
-                <Card>
+                <Stack gap={1}>
                     <Stack direction="row" gap={1}>
                         <Typography level="h3" alignSelf="center">{hasWon ? 'Vyhrál jsi!' : 'Prohrál jsi.'}</Typography>
                     </Stack>
@@ -109,7 +114,7 @@ export default function Game(params: {
                         <Button onClick={newGame}>Nová hra</Button>
                         <Button onClick={mainMenu}>Hlavní menu</Button>
                     </Stack>
-                </Card>
+                </Stack>
             </>
         )}
 
