@@ -49,6 +49,7 @@ export default function Header(props: {
 
     const [loggedIn, setLoggedIn] = React.useState(false);
     const [loggedInUser, setLoggedInUser] = React.useState('');
+    const [loggedInUserID, setLoggedInUserID] = React.useState('');
 
     const [showLoginDialog, setShowLoginDialog] = React.useState(false);
     const [showRegisterDialog, setShowRegisterDialog] = React.useState(false);
@@ -68,11 +69,12 @@ export default function Header(props: {
 
     const refreshUserInformation = () => {
         apiGet('/auth/status').then(x => {
-            const y = x as { user: string, status: string }
+            const y = x as { user: string, status: string, uuid: string }
 
             if (y.status === 'ok') {
                 setLoggedIn(true);
                 setLoggedInUser(y.user);
+                setLoggedInUserID(y.uuid);
             }
         })
     }
@@ -82,6 +84,9 @@ export default function Header(props: {
     }
 
     const navigateToProfile = () => {
+        router.push(`/account/${loggedInUserID}`);
+    }
+    const navigateToSettings = () => {
         router.push('/settings');
     }
 
@@ -102,6 +107,7 @@ export default function Header(props: {
                         </MenuButton>
                         <Menu>
                             <MenuItem onClick={navigateToProfile}>Profil</MenuItem>
+                            <MenuItem onClick={navigateToSettings}>Nastavení</MenuItem>
                             <Divider />
                             <MenuItem color="danger" onClick={signOut}>Odhlásit se</MenuItem>
                         </Menu>

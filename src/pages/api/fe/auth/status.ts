@@ -58,6 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).send({
         status: 'ok',
+        uuid: tokenRecord.userId,
         user: tokenRecord.username,
         email: tokenRecord.email
     });
