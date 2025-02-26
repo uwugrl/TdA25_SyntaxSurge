@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: {
             OR: [{ player1ID: player.userId }, { player2ID: player.userId }],
         },
-        include: {board: true}
+        include: {board: true, player1: true, player2: true}
     });
 
     const game = games.find((x, i) => {
@@ -75,7 +75,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 board: fromDbBoard(game.board),
                 difficulty: fromDbDifficulty(game.difficulty),
                 onMove: currentPlayer,
-                winner
+                winner,
+                player1: game.player1?.username ?? 'Unknown',
+                player2: game.player2?.username ?? 'Unknown'
             });
         }
 

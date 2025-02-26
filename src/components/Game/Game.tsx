@@ -6,7 +6,7 @@ import Link from "next/link";
 import { apiGet, apiPost } from "../frontendUtils";
 
 import React from "react";
-import { Button, Card, Stack, Typography } from "@mui/joy";
+import { Avatar, Button, Card, Stack, Typography } from "@mui/joy";
 
 export default function Game(params: {
     gameId: string, gameTitle: string, board: ("X" | "O" | "")[][], gameDifficulty: string
@@ -23,6 +23,9 @@ export default function Game(params: {
     const [onMove, setOnMove] = useState(false);
     const [hasWon, setHasWon] = useState(false);
 
+    const [player1Name, setPlayer1Name] = useState('');
+    const [player2Name, setPlayer2Name] = useState('');
+
     const hasRan = useRef(false);
 
     useEffect(() => {
@@ -31,7 +34,7 @@ export default function Game(params: {
 
             setInterval(() => {
                 apiGet('/game/board').then(z => {
-                    const game = z as { status: string, gameId: string, name: string, createdAt: string, updatedAt: string, board: ("X" | "O" | "")[][], difficulty: string, onMove: boolean, winner: boolean };
+                    const game = z as { status: string, gameId: string, name: string, createdAt: string, updatedAt: string, board: ("X" | "O" | "")[][], difficulty: string, onMove: boolean, winner: boolean, player1: string, player2: string };
                     console.log(game.status);
 
                     setGame(game.board);
@@ -39,6 +42,8 @@ export default function Game(params: {
                     setWinner(evalWinner(game.board, 5));
                     setOnMove(game.onMove);
                     setHasWon(game.winner);
+                    setPlayer1Name(game.player1);
+                    setPlayer2Name(game.player2);
                 });
             }, 200);
         }
@@ -83,6 +88,11 @@ export default function Game(params: {
 
     return (<>
         <h1 className={'text-3xl text-center font-bold'}>{params.gameTitle}</h1>
+        <Typography>
+            <Avatar>{player1Name[0]}</Avatar>
+            vs
+            <Avatar>{player2Name[0]}</Avatar>
+        </Typography>
 
         {winner === "" && (
             <>
