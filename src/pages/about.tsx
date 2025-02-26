@@ -65,7 +65,7 @@ export default function About() {
                             <Typography>Michal Daněček - </Typography>
                             <Link href={'https://social.mldchan.dev/@mld'} className={'text-[#0070BB]'}>Fedi</Link>
                             <Link href={'https://code.mldchan.dev/mld'} className={'text-[#0070BB]'}>Forgejo</Link>
-                            <Link href={'https://github.com/mldchan'} className={'text-[#0070BB]'}>GitHub</Link>
+                            <Link href={'https://github.com/uwugrl'} className={'text-[#0070BB]'}>GitHub</Link>
                             <Link href={'https://youtube.com/@mldchan'} className={'text-[#0070BB]'}>YouTube</Link>
                         </li>
                         <li className={'flex flex-row gap-2'}>
