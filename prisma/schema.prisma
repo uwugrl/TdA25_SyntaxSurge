@@ -30,21 +30,25 @@ model GameBoard {
 }
 
 model User {
-  userId         String   @id
-  username       String   @unique
-  email          String   @unique
-  password       String // argon2id hashed pass
-  createDate     DateTime @default(now())
-  lastActiveDate DateTime @default(now())
-  lastUpdateDate DateTime @default(now()) @updatedAt
-  elo            Int      @default(400)
-  wins           Int      @default(0)
-  draws          Int      @default(0)
-  losses         Int      @default(0)
-  administrator  Boolean  @default(false)
-  banned         Boolean  @default(false)
-  banReason      String?
-  aboutMe        String   @default("")
+  userId            String   @id
+  username          String   @unique
+  email             String   @unique
+  password          String // argon2id hashed pass
+  createDate        DateTime @default(now())
+  lastActiveDate    DateTime @default(now())
+  lastUpdateDate    DateTime @default(now()) @updatedAt
+  elo               Int      @default(400)
+  wins              Int      @default(0)
+  draws             Int      @default(0)
+  losses            Int      @default(0)
+  administrator     Boolean  @default(false)
+  banned            Boolean  @default(false)
+  banReason         String?
+  aboutMe           String   @default("")
+  player1Timer      Int      @default(300)
+  player1TimerStart DateTime @default(now())
+  player2Timer      Int      @default(300)
+  player2TimerStart DateTime @default(now())
 
   userTokens  UserTokens[]
   Matchmaking Matchmaking[]
@@ -60,9 +64,9 @@ model UserTokens {
 }
 
 model Matchmaking {
-  id         Int      @id @default(autoincrement())
-  player1ID  String
-  player1    User     @relation(fields: [player1ID], references: [userId])
-  expires    DateTime
-  code       String   @default("")
+  id        Int      @id @default(autoincrement())
+  player1ID String
+  player1   User     @relation(fields: [player1ID], references: [userId])
+  expires   DateTime
+  code      String   @default("")
 }

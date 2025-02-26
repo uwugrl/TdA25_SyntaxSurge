@@ -50,7 +50,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 
 
 function FilterOptions(props: {
-    setDifficultyFilter: (x: string | undefined) => void,
     setFulltextFilter: (x: string | undefined) => void,
     setGamestateFilter: (x: string | undefined) => void,
     setLastMoveAfter: (x: Date | undefined) => void,
@@ -58,8 +57,6 @@ function FilterOptions(props: {
     setCreatedAfter: (x: Date | undefined) => void,
     setCreatedBefore: (x: Date | undefined) => void
 }) {
-
-    const [difficultyFilter, setDifficultyFilter] = useState<string | undefined>(undefined);
     const [gamestateFilter, setGamestateFilter] = useState<string | undefined>(undefined);
     const [fulltextFilter, setFulltextFilter] = useState<string | undefined>(undefined);
 
@@ -92,23 +89,6 @@ function FilterOptions(props: {
         vytvorenText = `< ${createdBefore.toISOString().slice(0, 10)}`;
     }
 
-    const DIFFICULTIES = [{
-        id: "beginner",
-        val: "Začátečník"
-    }, {
-        id: "easy",
-        val: "Jednoduchá"
-    }, {
-        id: "medium",
-        val: "Pokročilá"
-    }, {
-        id: "hard",
-        val: "Těžká"
-    }, {
-        id: "extreme",
-        val: "Nejtěžší"
-    }];
-
     const GAMESTATES = [{
         id: "opening",
         val: "Začínající"
@@ -123,24 +103,6 @@ function FilterOptions(props: {
     return <>
         <Stack direction="row" gap={1}>
             <Typography alignSelf={'center'}>Filtrovat</Typography>
-            
-            {/* Difficulty */}
-
-            <Dropdown>
-                <MenuButton endDecorator={<ArrowDropDown />}>{difficultyFilter ? DIFFICULTIES.find(x => x.id === difficultyFilter)?.val : 'Obtížnost'}</MenuButton>
-                <Menu>
-                    {difficultyFilter && <>
-                        <MenuItem onClick={() => {setDifficultyFilter(undefined); props.setDifficultyFilter(undefined)}}>
-                            Odstranit filtr
-                        </MenuItem>
-                        <ListDivider />
-                    </>}
-                    
-                    {DIFFICULTIES.map(x => (
-                        <MenuItem key={x.id} onClick={() => {setDifficultyFilter(x.id); props.setDifficultyFilter(x.id)}}>{x.val}</MenuItem>
-                    ))}
-                </Menu>
-            </Dropdown>
 
             {/* Game State */}
             
@@ -254,8 +216,6 @@ function FilterOptions(props: {
 }
 
 export default function Home(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
-
-    const [difficultyFilter, setDifficultyFilter] = useState<string | undefined>(undefined);
     const [fulltextFilter, setFulltextFilter] = useState<string | undefined>(undefined);
     const [gamestateFilter, setGamestateFilter] = useState<string | undefined>(undefined);
 
@@ -302,11 +262,10 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
                 <Typography level="h2">Seznam her</Typography>
 
                 <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
-                <FilterOptions setDifficultyFilter={setDifficultyFilter} setFulltextFilter={setFulltextFilter} setGamestateFilter={setGamestateFilter}
+                <FilterOptions setFulltextFilter={setFulltextFilter} setGamestateFilter={setGamestateFilter}
                 setLastMoveAfter={setLastMoveAfter} setLastMoveBefore={setLastMoveBefore} setCreatedAfter={setCreatedAfter} setCreatedBefore={setCreatedBefore} />
 
                 {[...(props.games.filter(x => x.gameState !== "endgame")), ...(props.games.filter(x => x.gameState === "endgame"))]
-                    .filter(x => difficultyFilter ? difficultyFilter === x.difficulty : true)
                     .filter(x => fulltextFilter ? x.name.toLowerCase().includes(fulltextFilter.toLowerCase()) : true)
                     .filter(x => gamestateFilter ? gamestateFilter === x.gameState : true)
                     .filter(x => lastMoveAfter ? Date.parse(x.updatedAt) > lastMoveAfter.getTime() : true)
