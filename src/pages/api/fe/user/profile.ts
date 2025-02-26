@@ -46,10 +46,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
-    const { email, username } = req.body;
+    const { email, username, about } = req.body;
 
     if (!email || !username) {
         return res.status(400).send({error: 'Missing parameters'});
+    }
+
+    if (email.length < 2 || username.length < 2 || username.length > 16 || (about && about.length > 100)) {
+        return res.status(400).send({error: 'Parameters out of bounds'});
     }
 
     await prisma.user.update({
@@ -58,7 +62,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         data: {
             email,
-            username
+            username,
+            aboutMe: about
         }
     });
 

@@ -33,7 +33,8 @@ function ProfileSettings(props: {
 
         apiPost('/user/profile', {
             email,
-            username
+            username,
+            about: aboutMe
         }).then(() => {
             setLoading(false);
             setSuccess(true);
