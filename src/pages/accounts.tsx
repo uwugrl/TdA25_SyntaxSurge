@@ -102,6 +102,7 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
                             <th>Název</th>
                             <th>ELO</th>
                             <th>W/D/L</th>
+                            <th>Akce</th>
                         </tr>
                     </thead>
                     <tbody>
