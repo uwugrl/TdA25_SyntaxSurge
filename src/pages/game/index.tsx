@@ -8,6 +8,35 @@ import { Typography } from "@mui/joy";
 
 const dosis = localFont({src: '../fonts/Dosis-VariableFont_wght.ttf'});
 
+function Tip() {
+
+    const tips = [
+        "Piškvorky pocházejí z Japonska, kde jsou známé jako „Gomoku“.",
+        "Hra se objevila v Evropě už v 19. století.",
+        "Standardní verze se hraje na papíře s mřížkou 15x15.",
+        "První tah často rozhoduje o strategii celé hry.",
+        "Profesionální hráči používají zahájení s pevnými pravidly, aby eliminovali výhodu prvního tahu.",
+        "Ovládej střed hrací plochy - umožní ti větší manévrovací prostor.",
+        "Blokuj soupeře - dávej pozor na čtyři kameny v řadě.",
+        "Tvoř dvojité hrozby - vytvoř dvě výherní cesty najednou.",
+        "Nezapomínej na obranu - nepřemýšlej jen nad svým útokem.",
+        "Hraj pozičně - neklaď kameny nahodile, ale s dlouhodobým plánem.",
+    ];
+
+    const [randomTip, setRandomTip] = useState(-1);
+
+    useEffect(() => {
+        setRandomTip(Math.floor(Math.random() * tips.length));
+    }, [setRandomTip]);
+
+    if (randomTip === -1) return null;
+
+    return <Typography>
+        {tips[randomTip]}
+    </Typography>;
+
+}
+
 export default function Game() {
     const [gameId, setGameId] = useState("");
     const [title, setTitle] = useState("");
@@ -63,8 +92,13 @@ export default function Game() {
             <br/>
             <br/>
             <br/>
+            <br/>
+            <br/>
+            <br/>
             {gameId === "" && <div className="text-center">
                 <Typography level="h3">Hledání hry... {formatSeconds()}</Typography>
+                <br/>
+                <Tip />
             </div>}
             {gameId === "" ||
                 <GameComponent gameId={gameId} gameTitle={title} board={board} gameDifficulty={difficulty}/>}
