@@ -100,7 +100,6 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
                     <thead>
                         <tr>
                             <th>Název</th>
-                            <th>Akce</th>
                             <th>ELO</th>
                             <th>W/D/L</th>
                         </tr>
@@ -109,11 +108,11 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
                         {users.map(x => (
                             <tr key={x.uuid}>
                                 <td>{x.name}</td>
+                                <td>{x.elo}</td>
+                                <td>{`${x.wins}/${x.draws}/${x.losses}`}</td>
                                 <td>
                                     <Link href={`/account/${x.uuid}`}><Button variant="plain">Zobrazit uživatele</Button></Link>
                                 </td>
-                                <td>{x.elo}</td>
-                                <td>{`${x.wins}/${x.draws}/${x.losses}`}</td>
                             </tr>
                         ))}
                     </tbody>
