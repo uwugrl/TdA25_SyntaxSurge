@@ -3,8 +3,8 @@ import localFont from "next/font/local";
 import GameComponent from '@/components/Game/Game';
 import React from "react";
 import Header from "@/components/Header";
-import { apiGet } from "@/components/frontendUtils";
-import { Typography } from "@mui/joy";
+import { apiGet, apiPost } from "@/components/frontendUtils";
+import { Button, Typography } from "@mui/joy";
 
 const dosis = localFont({src: '../fonts/Dosis-VariableFont_wght.ttf'});
 
@@ -86,6 +86,12 @@ export default function Game() {
         return `${minutes}:${seconds}`;
     }
 
+    const endMatchmaking = () => {
+        apiPost('/game/cancelmatchmaking', {}).then(() => {
+            location.href = '/';
+        });
+    }
+
     return (<>
         <div className={`w-3/4 m-auto ${dosis.className}`}>
             <br/>
@@ -99,6 +105,7 @@ export default function Game() {
                 <Typography level="h3">Hledání hry... {formatSeconds()}</Typography>
                 <br/>
                 <Tip />
+                <Button onClick={endMatchmaking} color="danger">Zrušit matchmaking</Button>
             </div>}
             {gameId === "" ||
                 <GameComponent gameId={gameId} gameTitle={title} board={board} gameDifficulty={difficulty}/>}
