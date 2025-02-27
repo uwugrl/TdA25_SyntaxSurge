@@ -12,10 +12,10 @@ const theme = extendTheme({
         display: dosis.style.fontFamily
     },
     fontSize: {
-        sm: '16px',
-        md: '18px',
-        lg: '20px',
-        xl: '24px'
+        sm: '20px',
+        md: '24px',
+        lg: '28px',
+        xl: '32px'
     },
     colorSchemes: {
         dark: {

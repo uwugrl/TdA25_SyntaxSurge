@@ -91,9 +91,9 @@ export default function Header(props: {
         router.push('/settings');
     }
 
-    return <div className={`${dosis.className} fixed flex flex-row justify-between gap-6 w-5/6 left-1/2 top-4 bg-[#080808ee] -translate-x-1/2 p-3 px-3 rounded-xl drop-shadow-xl`}>
-        <Stack direction='row' gap={2}>
-            <Image onClick={navigateToHome} src={tda} alt={'Think different Academy logo'} className="cursor-pointer" width={173} height={144} />
+    return <div className={`${dosis.className} fixed flex flex-row justify-between gap-6 w-5/6 left-1/2 top-4 bg-[#080808ee] -translate-x-1/2 p-3 px-3 rounded-xl drop-shadow-xl h-24`}>
+        <Stack direction='row' gap={3}>
+            <Image onClick={navigateToHome} src={tda} alt={'Think different Academy logo'} className="cursor-pointer m-1" width={193} height={144} />
 
             <LinkButton href="/">Hry</LinkButton>
             <LinkButton href="/accounts">Účty</LinkButton>

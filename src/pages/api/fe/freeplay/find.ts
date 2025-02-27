@@ -17,7 +17,7 @@
  *
  */
 
-import { getAccountFromID, getAccountFromToken } from "@/components/backendUtils";
+import { getAccountFromID } from "@/components/backendUtils";
 import { PrismaClient } from "@prisma/client";
 import { v4 } from "uuid";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -26,12 +26,6 @@ import { fromDbBoard } from "@/components/fromDB";
 import moment from "moment";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const { token } = req.cookies;
-
-    if (!token) return res.status(403).send({ error: "Unauthorized" });
-    const player2 = await getAccountFromToken(token);
-    if (!player2) return res.status(403).send({ error: "Unauthorized" });
-
     let gameCode = '';
     if (req.method === 'POST' && req.headers["content-type"] === 'application/json' && req.body && req.body.code) {
         gameCode = req.body.code;
@@ -40,19 +34,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const prisma = new PrismaClient();
     await prisma.$connect();
 
-    await prisma.matchmaking.deleteMany({
-        where: {
-            expires: {
-                lt: moment().toDate()
-            }
-        }
-    });
-
-    const existingGames = await prisma.game.findMany({where: {OR: [{player1ID: player2.userId}, {player2ID: player2.userId}]}, include: {board: true}});
+    const existingGames = await prisma.freeGame.findMany({include: {board: true}});
     const existingGame = existingGames.find(x => {
-        if (evalWinner(fromDbBoard(x.board)) === "" && x.explicitWinner === 0) return true;
+        if (evalWinner(fromDbBoard(x.board)) === "") return true;
         return false;
-    })
+    });
 
     if (existingGame && determineGameState(fromDbBoard(existingGame.board)) !== "endgame") {
         await prisma.matchmaking.deleteMany({where: {player1ID: player2.userId}});
@@ -94,6 +80,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 player1ID: game.player1ID,
                 player2ID: player2.userId,
                 player1TimerStart: moment().toDate(),
+                player1Timer: 300,
+                player2Timer: 300
             },
         });
 

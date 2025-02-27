@@ -40,8 +40,8 @@ export default function GameBoard(params: {
             canvasRef.current.addEventListener('click', (ev: MouseEvent) => {
                 if (canvasRef.current && canvasParentRef.current) {
                     const size = canvasParentRef.current.clientWidth / params.board.length;
-                    const x = Math.floor((ev.clientX - canvasRef.current.offsetLeft) / size);
-                    const y = Math.floor((ev.clientY - canvasRef.current.offsetTop) / size);
+                    const x = Math.floor((ev.clientX - canvasRef.current.offsetLeft - window.scrollX) / size);
+                    const y = Math.floor((ev.clientY - canvasRef.current.offsetTop - window.scrollY) / size);
                     
                     if (params.interact && params.allowInteract) {
                         params.interact(x, y);
@@ -97,7 +97,7 @@ export default function GameBoard(params: {
     return (
         <>
             <div ref={canvasParentRef} style={{
-                maxWidth: '600px',
+                maxWidth: '800px',
                 margin: 'auto'
             }}>
                 <canvas ref={canvasRef}></canvas>

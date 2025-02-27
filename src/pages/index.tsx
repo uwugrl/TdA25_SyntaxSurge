@@ -3,17 +3,18 @@ import {PrismaClient} from "@prisma/client";
 import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
 import React, { useState } from "react";
 import Metadata from "@/components/Metadata";
-import {Button, DialogTitle, Dropdown, Input, ListDivider, Menu, MenuButton, MenuItem, Modal, ModalClose, ModalDialog, Stack, Typography} from "@mui/joy";
+import {Button, DialogTitle, Dropdown, Input, ListDivider, Menu, MenuButton, MenuItem, Modal, ModalClose, ModalDialog, Stack, Table, Typography} from "@mui/joy";
 import Header from "@/components/Header";
 import {ArrowDropDown, Search} from '@mui/icons-material';
 import { determineGameState } from "@/components/gameUtils";
 import { validateAccount } from "@/components/backendUtils";
 import Pagination from "@/components/Pagination";
-import { GameCard } from "@/components/GameCard";
 import Footer from "@/components/Footer";
 import { apiGet } from "@/components/frontendUtils";
 import Image from "next/image";
 import piskvorky from '../pages/image/piskvorky.png';
+import moment from "moment";
+import { formatDate } from "@/components/base";
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const client = new PrismaClient();
@@ -34,7 +35,10 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
             updatedAt: x.updatedAt.toISOString(),
             gameState: determineGameState(fromDbBoard(x.board)),
             explicitWinner: x.explicitWinner
-        }));
+        })), users = await client.user.count(), gamesCount = await client.game.count(),
+        gamesToday = await client.game.count({where: {
+            createdAt: moment().subtract(1, 'd').toDate()
+        }});
 
     await client.$disconnect();
 
@@ -44,7 +48,10 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     return {
         props: {
             games,
-            loggedIn
+            loggedIn,
+            users,
+            gamesCount,
+            gamesToday
         }
     }
 }
@@ -258,21 +265,32 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
                 <div className="text-center">
                 </div>
 
-                <div className="grid grid-cols-2 place-items-center">
-                    <Image alt="Hra sachy" src={piskvorky} width={200} height={200} />
-                    <Stack gap={1}>
+                <div className="grid gric-cols-1 lg:grid-cols-2 place-items-start">
+                    <Image alt="Hra sachy" src={piskvorky} width={600} height={600} />
+                    <Stack gap={1} alignItems={"center"} width={"100%"}>
+                        <Typography fontSize={'80px'} fontWeight={'bold'}>Piškvorky!</Typography>
+                        <Typography textAlign={'center'}>{`Registrovaní hráči: ${props.users}`}</Typography>
+                        <Typography textAlign={'center'}>{`Hry: ${props.gamesCount}`}</Typography>
+                        <Typography textAlign={'center'}>{`Hry dnes: ${props.gamesToday}`}</Typography>
+                        <br />
                         <Button style={{
-                            width: '200px',
-                            height: '80px',
-                            fontSize: '120%'
-                        }} size="lg" onClick={play}>Hrát</Button>
+                            width: '350px',
+                            height: '100px',
+                            fontSize: '200%'
+                        }} size="lg" onClick={play}>Hrát hodnocené</Button>
+                        <br />
                         <Button style={{
-                            width: '200px',
-                            height: '80px',
-                            fontSize: '120%'
+                            width: '350px',
+                            height: '100px',
+                            fontSize: '200%'
                         }} size="lg" onClick={playFree}>Hrát přáteláčky</Button>
                     </Stack>
                 </div>
+
+                <br />
+                <br />
+                <br />
+                <br />
 
                 <Typography level="h2">Seznam her</Typography>
 
@@ -280,20 +298,40 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
                 <FilterOptions setFulltextFilter={setFulltextFilter} setGamestateFilter={setGamestateFilter}
                 setLastMoveAfter={setLastMoveAfter} setLastMoveBefore={setLastMoveBefore} setCreatedAfter={setCreatedAfter} setCreatedBefore={setCreatedBefore} />
 
-                {[...(props.games.filter(x => x.gameState !== "endgame")), ...(props.games.filter(x => x.gameState === "endgame"))]
-                    .filter(x => fulltextFilter ? x.name.toLowerCase().includes(fulltextFilter.toLowerCase()) : true)
-                    .filter(x => gamestateFilter ? gamestateFilter === x.gameState : true)
-                    .filter(x => lastMoveAfter ? Date.parse(x.updatedAt) > lastMoveAfter.getTime() : true)
-                    .filter(x => lastMoveBefore ? Date.parse(x.updatedAt) < lastMoveBefore.getTime() : true)
-                    .filter(x => createdAfter ? Date.parse(x.createdAt) > createdAfter.getTime() : true)
-                    .filter(x => createdBefore ? Date.parse(x.createdAt) < createdBefore.getTime() : true)
-                    .slice((page - 1) * 10, page * 10)
-                    .map(x => {
-                    if (!x.difficulty) {return null;}
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Název</th>
+                            <th>Hráno</th>
+                            <th>Akce</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {[...(props.games.filter(x => x.gameState !== "endgame")), ...(props.games.filter(x => x.gameState === "endgame"))]
+                            .filter(x => fulltextFilter ? x.name.toLowerCase().includes(fulltextFilter.toLowerCase()) : true)
+                            .filter(x => gamestateFilter ? gamestateFilter === x.gameState : true)
+                            .filter(x => lastMoveAfter ? Date.parse(x.updatedAt) > lastMoveAfter.getTime() : true)
+                            .filter(x => lastMoveBefore ? Date.parse(x.updatedAt) < lastMoveBefore.getTime() : true)
+                            .filter(x => createdAfter ? Date.parse(x.createdAt) > createdAfter.getTime() : true)
+                            .filter(x => createdBefore ? Date.parse(x.createdAt) < createdBefore.getTime() : true)
+                            .slice((page - 1) * 10, page * 10)
+                            .map(x => {
+                            if (!x.difficulty) {return null;}
 
-                    return <GameCard key={x.uuid} uuid={x.uuid} name={x.name} createdAt={x.createdAt} updatedAt={x.updatedAt}
-                                     difficulty={x.difficulty} ended={x.gameState === "endgame" || x.explicitWinner !== 0} explicitWinner={x.explicitWinner}/>
-                })}
+                            const show = () => {
+                                location.href = `/game/${x.uuid}`;
+                            }
+
+                            return <tr key={x.uuid}>
+                                <td>{x.name}</td>
+                                <td>{formatDate(new Date(x.createdAt))}</td>
+                                <td><Button variant="plain" onClick={show}>Zobrazit</Button></td>
+                            </tr>
+                        })}
+                    </tbody>
+                </Table>
+
+                
 
                 <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
             </Stack>

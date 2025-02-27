@@ -120,18 +120,18 @@ export default function Game(params: {
 
     return (<>
         <div className="m-auto">
-            <Typography level="h1" textAlign="center">
+            <Typography level="h1" textAlign="center" fontSize={"60px"}>
                 {gameName}
             </Typography>
         </div>
 
         {(winner === "" && !explicitWin) && (
             <>
-                <div className="flex flex-row justify-between">
-                    <Typography fontSize={'24px'} fontWeight={'bold'}>{player1Time}</Typography>
-                    <Typography fontSize={'24px'} fontWeight={'bold'}>{player2Time}</Typography>
+                <div className="flex flex-row justify-around">
+                    <Typography fontSize={'36px'} fontWeight={'bold'}>{player1Time}</Typography>
+                    <Typography fontSize={'36px'} fontWeight={'bold'}>{player2Time}</Typography>
                 </div>
-                {onMove ? <Typography fontSize="20px" color="success">Hraješ!</Typography> : <Typography fontSize="20px">Hraje protihráč...</Typography>}
+                {onMove ? <Typography fontSize="30px" color="success" textAlign={"center"}>Hraješ!</Typography> : <Typography fontSize="30px" textAlign={"center"}>Hraje protihráč...</Typography>}
             </>
         )}
         {(winner === "" && !explicitWin) || (
