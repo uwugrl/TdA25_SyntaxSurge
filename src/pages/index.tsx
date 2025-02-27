@@ -12,7 +12,8 @@ import Pagination from "@/components/Pagination";
 import { GameCard } from "@/components/GameCard";
 import Footer from "@/components/Footer";
 import { apiGet } from "@/components/frontendUtils";
-import { useRouter } from "next/router";
+import Image from "next/image";
+import piskvorky from '../pages/image/piskvorky.png';
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const client = new PrismaClient();
@@ -231,14 +232,16 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
     const [page, setPage] = React.useState(1);
     const lastPage = Math.ceil(props.games.length / 10);
 
-    const router = useRouter();
-
     const play = () => {
         apiGet('/auth/status').then(() => {
-            router.push('/game');     
+            location.href = '/game';
         }).catch(() => {
             setOpenRegisterDialog(true);
         });
+    }
+
+    const playFree = () => {
+        location.href = '/freeplay';
     }
 
     return (<>
@@ -253,11 +256,22 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
 
             <Stack spacing={1}>
                 <div className="text-center">
-                    <Button style={{
-                        width: '160px',
-                        height: '80px',
-                        fontSize: '120%'
-                    }} size="lg" onClick={play}>Hrát</Button>
+                </div>
+
+                <div className="grid grid-cols-2 place-items-center">
+                    <Image alt="Hra sachy" src={piskvorky} width={200} height={200} />
+                    <Stack gap={1}>
+                        <Button style={{
+                            width: '200px',
+                            height: '80px',
+                            fontSize: '120%'
+                        }} size="lg" onClick={play}>Hrát</Button>
+                        <Button style={{
+                            width: '200px',
+                            height: '80px',
+                            fontSize: '120%'
+                        }} size="lg" onClick={playFree}>Hrát přáteláčky</Button>
+                    </Stack>
                 </div>
 
                 <Typography level="h2">Seznam her</Typography>

@@ -54,8 +54,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return false;
     })
 
-    console.log(existingGame)
-
     if (existingGame && determineGameState(fromDbBoard(existingGame.board)) !== "endgame") {
         await prisma.matchmaking.deleteMany({where: {player1ID: player2.userId}});
         return res.status(200).send({

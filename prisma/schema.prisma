@@ -20,12 +20,18 @@ model Game {
   player2    User?       @relation(name: "player2", fields: [player2ID], references: [userId])
 
   // Timers
-  player1Timer      Int      @default(180)
+  player1Timer      Int      @default(480)
   player1TimerStart DateTime @default(now())
-  player2Timer      Int      @default(180)
+  player2Timer      Int      @default(480)
   player2TimerStart DateTime @default(now())
 
   explicitWinner Int @default(0)
+}
+
+model FreeGame {
+  id         String      @id
+  name       String
+  board      FreeGameBoard[]
 }
 
 model GameBoard {
@@ -33,6 +39,15 @@ model GameBoard {
   x      Int
   y      Int
   game   Game   @relation(fields: [gameId], references: [id])
+  gameId String
+  state  Int
+}
+
+model FreeGameBoard {
+  id     Int    @id @default(autoincrement())
+  x      Int
+  y      Int
+  game   FreeGame   @relation(fields: [gameId], references: [id])
   gameId String
   state  Int
 }

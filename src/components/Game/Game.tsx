@@ -141,8 +141,8 @@ export default function Game(params: {
                         <Typography level="h3" alignSelf="center">{hasWon ? 'Vyhrál jsi!' : 'Prohrál jsi.'}</Typography>
                     </Stack>
                     <Stack direction="row" gap={1}>
-                        <Button onClick={newGame}>Hrát znovu s aktuálním hráčem</Button>
-                        <Button onClick={mainMenu}>Hlavní menu</Button>
+                        <Button size="lg" onClick={newGame}>Hrát znovu s aktuálním hráčem</Button>
+                        <Button size="lg" onClick={mainMenu}>Hlavní menu</Button>
                     </Stack>
                 </Stack>
             </>
