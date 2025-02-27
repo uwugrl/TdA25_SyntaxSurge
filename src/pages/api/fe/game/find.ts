@@ -50,9 +50,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const existingGames = await prisma.game.findMany({where: {OR: [{player1ID: player2.userId}, {player2ID: player2.userId}]}, include: {board: true}});
     const existingGame = existingGames.find(x => {
-        if (evalWinner(fromDbBoard(x.board)) === "") return true;
+        if (evalWinner(fromDbBoard(x.board)) === "" && x.explicitWinner === 0) return true;
         return false;
     })
+
+    console.log(existingGame)
 
     if (existingGame && determineGameState(fromDbBoard(existingGame.board)) !== "endgame") {
         await prisma.matchmaking.deleteMany({where: {player1ID: player2.userId}});
@@ -93,6 +95,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 board: { createMany: { data: board } },
                 player1ID: game.player1ID,
                 player2ID: player2.userId,
+                player1TimerStart: moment().toDate(),
+                player1Timer: 300,
+                player2Timer: 300
             },
         });
 

@@ -1,16 +1,17 @@
 import GameBoard from "@/components/Game/GameBoard";
 import {useEffect, useRef, useState} from "react";
 import {evalWinner} from "@/components/gameUtils";
-import {useRouter} from "next/router";
 import Link from "next/link";
 import { apiGet, apiPost } from "../frontendUtils";
 
 import React from "react";
-import { Avatar, Button, Stack, Typography } from "@mui/joy";
+import { Button, Stack, Typography } from "@mui/joy";
 
 export default function Game(params: {
     gameId: string, gameTitle: string, board: ("X" | "O" | "")[][], gameDifficulty: string
 }) {
+
+    const [gameName, setGameName] = useState('');
 
     const gameRef = useRef<("X" | "O" | "")[][]>(params.board); //nesnasim react
     const gameId = useRef('');
@@ -24,10 +25,22 @@ export default function Game(params: {
     const [onMove, setOnMove] = useState(false);
     const [hasWon, setHasWon] = useState(false);
 
-    const [player1Name, setPlayer1Name] = useState('');
-    const [player2Name, setPlayer2Name] = useState('');
+    const [player1Time, setPlayer1Time] = useState('');
+    const [player2Time, setPlayer2Time] = useState('');
+
+    const [explicitWin, setExplicitWin] = useState(false);
 
     const hasRan = useRef(false);
+
+    const formatPlayerTime = (time: number) => {
+        const minutes = (Math.floor(time / 60)).toString();
+        const seconds = (~~(time % 60)).toString();
+
+        if (seconds.length === 1) {
+            return `${minutes}:0${seconds}`;
+        }
+        return `${minutes}:${seconds}`;
+    }
 
     useEffect(() => {
         if (!hasRan.current) {
@@ -35,21 +48,36 @@ export default function Game(params: {
 
             setInterval(() => {
                 apiGet('/game/board').then(z => {
-                    const game = z as { status: string, gameId: string, name: string, createdAt: string, updatedAt: string, board: ("X" | "O" | "")[][], difficulty: string, onMove: boolean, winner: boolean, player1: string, player2: string };
+                    const game = z as { 
+                        status: string, 
+                        gameId: string, 
+                        name: string, 
+                        createdAt: string, 
+                        updatedAt: string, 
+                        board: ("X" | "O" | "")[][], 
+                        difficulty: string, 
+                        onMove: boolean, 
+                        winner: boolean,
+                        p1LeftTime: number,
+                        p2LeftTime: number,
+                        explicitEnd: boolean
+                    };
                     console.log(game.status);
 
                     setGame(game.board);
+                    setGameName(game.name);
                     gameRef.current = game.board;
                     gameId.current = game.gameId;
                     setWinner(evalWinner(game.board, 5));
                     setOnMove(game.onMove);
                     setHasWon(game.winner);
-                    setPlayer1Name(game.player1);
-                    setPlayer2Name(game.player2);
+                    setPlayer1Time(formatPlayerTime(game.p1LeftTime));
+                    setPlayer2Time(formatPlayerTime(game.p2LeftTime));
+                    setExplicitWin(game.explicitEnd);
                 });
             }, 200);
         }
-    })
+    });
 
     function handleInteraction(x: number, y: number) {
         if (game[y][x] !== "") {
@@ -76,8 +104,6 @@ export default function Game(params: {
         })
     }
 
-    const router = useRouter();
-
     const newGame = () => {
         localStorage.removeItem("game");
         apiPost('/game/find', {
@@ -89,28 +115,26 @@ export default function Game(params: {
 
     const mainMenu = () => {
         localStorage.removeItem("game");
-        router.push('/');
+        location.href = '/';
     }
 
     return (<>
         <div className="m-auto">
-            <Typography level="h1">
-                <Stack direction="row" gap={1} alignItems="center">
-                    <Avatar>{player1Name[0]}</Avatar>
-                    <Typography>{player1Name}</Typography>
-                    vs
-                    <Avatar>{player2Name[0]}</Avatar>
-                    <Typography>{player2Name}</Typography>
-                </Stack>
+            <Typography level="h1" textAlign="center">
+                {gameName}
             </Typography>
         </div>
 
-        {winner === "" && (
+        {(winner === "" && !explicitWin) && (
             <>
+                <div className="flex flex-row justify-between">
+                    <Typography fontSize={'24px'} fontWeight={'bold'}>{player1Time}</Typography>
+                    <Typography fontSize={'24px'} fontWeight={'bold'}>{player2Time}</Typography>
+                </div>
                 {onMove ? <Typography fontSize="20px" color="success">Hraješ!</Typography> : <Typography fontSize="20px">Hraje protihráč...</Typography>}
             </>
         )}
-        {winner === "" || (
+        {(winner === "" && !explicitWin) || (
             <>
                 <Stack gap={1}>
                     <Stack direction="row" gap={1}>

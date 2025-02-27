@@ -18,6 +18,14 @@ model Game {
   player1    User?       @relation(name: "player1", fields: [player1ID], references: [userId])
   player2ID  String?
   player2    User?       @relation(name: "player2", fields: [player2ID], references: [userId])
+
+  // Timers
+  player1Timer      Int      @default(180)
+  player1TimerStart DateTime @default(now())
+  player2Timer      Int      @default(180)
+  player2TimerStart DateTime @default(now())
+
+  explicitWinner Int @default(0)
 }
 
 model GameBoard {
@@ -30,25 +38,21 @@ model GameBoard {
 }
 
 model User {
-  userId            String   @id
-  username          String   @unique
-  email             String   @unique
-  password          String // argon2id hashed pass
-  createDate        DateTime @default(now())
-  lastActiveDate    DateTime @default(now())
-  lastUpdateDate    DateTime @default(now()) @updatedAt
-  elo               Int      @default(400)
-  wins              Int      @default(0)
-  draws             Int      @default(0)
-  losses            Int      @default(0)
-  administrator     Boolean  @default(false)
-  banned            Boolean  @default(false)
-  banReason         String?
-  aboutMe           String   @default("")
-  player1Timer      Int      @default(300)
-  player1TimerStart DateTime @default(now())
-  player2Timer      Int      @default(300)
-  player2TimerStart DateTime @default(now())
+  userId         String   @id
+  username       String   @unique
+  email          String   @unique
+  password       String // argon2id hashed pass
+  createDate     DateTime @default(now())
+  lastActiveDate DateTime @default(now())
+  lastUpdateDate DateTime @default(now()) @updatedAt
+  elo            Int      @default(400)
+  wins           Int      @default(0)
+  draws          Int      @default(0)
+  losses         Int      @default(0)
+  administrator  Boolean  @default(false)
+  banned         Boolean  @default(false)
+  banReason      String?
+  aboutMe        String   @default("")
 
   userTokens  UserTokens[]
   Matchmaking Matchmaking[]

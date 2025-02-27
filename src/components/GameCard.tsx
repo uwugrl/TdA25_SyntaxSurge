@@ -4,7 +4,7 @@ import Link from "next/link";
 import { formatDate } from "./base";
 
 export function GameCard(props: {
-    uuid: string, name: string, createdAt: string, updatedAt: string, difficulty: string, ended: boolean
+    uuid: string, name: string, createdAt: string, updatedAt: string, difficulty: string, ended: boolean, explicitWinner: number
 }) {
     const dateCreated = new Date(props.createdAt);
 

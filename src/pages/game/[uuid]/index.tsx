@@ -48,7 +48,11 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         winnerUser = await prisma.user.findFirst({where: {userId: game.player2ID ?? ''}});
     }
 
-    if (!winnerUser) return { notFound: true }
+    if (game.explicitWinner === 1) {
+        winnerUser = await prisma.user.findFirst({where: {userId: game.player1ID ?? ''}});
+    } else if (game.explicitWinner === 2) {
+        winnerUser = await prisma.user.findFirst({where: {userId: game.player2ID ?? ''}});
+    }
 
     await prisma.$disconnect();
     return {
@@ -61,9 +65,10 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
                 difficulty,
                 board,
                 gameState: determineGameState(board),
-                winner: {
+                winner: winnerUser ? {
                     username: winnerUser.username
-                }
+                } : null,
+                explicitWinner: game.explicitWinner
             }
         }
     }
@@ -72,7 +77,8 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 const dosis = localFont({src: '../../fonts/Dosis-VariableFont_wght.ttf'});
 
 export default function ViewSavedGame(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
-    const winner = evalWinner(props.game.board, 5);
+    const winner = props.game.explicitWinner === 0 ? evalWinner(props.game.board, 5) :
+        props.game.explicitWinner === 1 ? 'X' : 'O';
 
     return <>
         <Metadata title={props.game.name} description={'Hrajte piškvorky na Think different Academy ještě dnes!'}/>
@@ -88,14 +94,16 @@ export default function ViewSavedGame(props: InferGetServerSidePropsType<typeof 
                 <CardContent>
                     <Stack gap={1}>
                         <Typography level="h3">Stav hry</Typography>
-                        {props.game.gameState === 'opening' && <Typography>Hra právě začala.</Typography>}
-                        {props.game.gameState === 'midgame' && <Typography>Hra probíhá.</Typography>}
+                        {props.game.gameState === 'opening' && !winner && <Typography>Hra právě začala.</Typography>}
+                        {props.game.gameState === 'midgame' && !winner && <Typography>Hra probíhá.</Typography>}
                         {winner === "" || <Stack direction="row" gap={1}>
-                            <Typography alignSelf="center">{`Hra skončila. Hru vyhrál/a ${props.game.winner.username}`}</Typography>
+                            <Typography alignSelf="center">{`Hra skončila. Hru vyhrál/a ${props.game.winner!.username}`}</Typography>
                         </Stack>}
                     </Stack>
                 </CardContent>
             </Card>
+
+            {[1,2,3].map(x => <br key={x}/>)}
         </main>
     </>
 }

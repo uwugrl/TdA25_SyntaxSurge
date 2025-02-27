@@ -3,6 +3,7 @@ import { elo, getAccountFromToken } from "@/components/backendUtils";
 import { PrismaClient } from "@prisma/client";
 import { fromDbBoard, fromDbDifficulty } from "@/components/fromDB";
 import { evalWinner, getNextSymbol, isGameFull } from "@/components/gameUtils";
+import moment from "moment";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { token } = req.cookies;
@@ -31,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const game = games.find((x, i) => {
         if (i + 1 === games.length) return true;
         const board = fromDbBoard(x.board);
-        if (evalWinner(board) === "" && !isGameFull(board)) return true; 
+        if (evalWinner(board) === "" && !isGameFull(board) && x.explicitWinner === 0) return true; 
         return false;
     });
 
@@ -59,11 +60,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             currentPlayer = currentPlayer && evalWinner(fromDbBoard(game.board)) === '';
 
+            let p1LeftTime = game.player1Timer;
+            let p2LeftTime = game.player2Timer;
+            
+            if (playing === 'X') {
+                p1LeftTime -= moment().diff(game.player1TimerStart, 's');
+            }
+            if (playing === 'O') {
+                p2LeftTime -= moment().diff(game.player2TimerStart, 's');
+            }
+
+            if (p1LeftTime < 0) {
+                game.explicitWinner = 2;
+                await prisma.game.update({
+                    where: {
+                        id: game.id
+                    },
+                    data: {
+                        explicitWinner: 2
+                    }
+                });
+            }
+            
+            if (p2LeftTime < 0) {
+                game.explicitWinner = 1;
+                await prisma.game.update({
+                    where: {
+                        id: game.id
+                    },
+                    data: {
+                        explicitWinner: 1
+                    }
+                });
+            }
+
             let winner = false;
-            if (playing === 'O' && player.userId === game.player1ID) {
+            if ((playing === 'O' && player.userId === game.player1ID) || (player.userId === game.player1ID && game.explicitWinner === 1)) {
                 winner = true;
             }
-            if (playing === 'X' && player.userId === game.player2ID) {
+            if ((playing === 'X' && player.userId === game.player2ID) || (player.userId === game.player2ID && game.explicitWinner === 2)) {
                 winner = true;
             }
 
@@ -77,7 +112,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 onMove: currentPlayer,
                 winner,
                 player1: game.player1?.username ?? 'Unknown',
-                player2: game.player2?.username ?? 'Unknown'
+                player2: game.player2?.username ?? 'Unknown',
+                p1LeftTime,
+                p2LeftTime,
+                explicitEnd: p1LeftTime < 0 || p2LeftTime < 0 || game.explicitWinner !== 0
             });
         }
 
@@ -96,6 +134,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             if (nextPlaying === "X" && game.player1ID === player.userId) {
                 board[y][x] = "X";
+
+                await prisma.game.update({
+                    where: {
+                        id: game.id
+                    },
+                    data: {
+                        player2TimerStart: moment().toDate(),
+                        player1Timer: {
+                            decrement: moment().diff(game.player1TimerStart, 'second')
+                        }
+                    }
+                });
 
                 if (evalWinner(board) === "X") {
                     await prisma.user.update({
@@ -116,6 +166,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             if (nextPlaying === "O" && game.player2ID === player.userId) {
                 board[y][x] = "O";
+
+                await prisma.game.update({
+                    where: {
+                        id: game.id
+                    },
+                    data: {
+                        player1TimerStart: moment().toDate(),
+                        player2Timer: {
+                            decrement: moment().diff(game.player2TimerStart, 'second')
+                        }
+                    }
+                });
 
                 if (evalWinner(board) === "O") {
                     await prisma.user.update({
@@ -152,6 +214,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     }
                 });
                 await elo(game.player1ID, game.player2ID, 'd');
+            }
+
+            if (game.explicitWinner !== 0) {
+                return res.status(400).send({error: 'Tato hra je už dohraná.'});
             }
 
             if ((nextPlaying === "X" && game.player2ID === player.userId) || (nextPlaying === "O" && game.player1ID === player.userId)) {
