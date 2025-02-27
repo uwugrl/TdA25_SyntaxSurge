@@ -63,18 +63,37 @@ export default function About() {
                     <ul className={'list-disc ml-4'}>
                         <li className={'flex flex-row gap-2'}>
                             <Typography>Michal Daněček - </Typography>
-                            <Link href={'https://social.mldchan.dev/@mld'} className={'text-[#0070BB]'}>Fedi</Link>
-                            <Link href={'https://code.mldchan.dev/mld'} className={'text-[#0070BB]'}>Forgejo</Link>
-                            <Link href={'https://github.com/uwugrl'} className={'text-[#0070BB]'}>GitHub</Link>
-                            <Link href={'https://youtube.com/@mldchan'} className={'text-[#0070BB]'}>YouTube</Link>
+                            <Link href={'https://social.mldchan.dev/@mld'} className={'text-[#0070BB]'}>
+                                <Typography>Fedi</Typography>
+                            </Link>
+                            <Link href={'https://code.mldchan.dev/mld'} className={'text-[#0070BB]'}>
+                                <Typography>Forgejo</Typography>
+                            </Link>
+                            <Link href={'https://github.com/UwUgrl'} className={'text-[#0070BB]'}>
+                                <Typography>GitHub</Typography>
+                            </Link>
+                            <Link href={'https://youtube.com/@mldchan'} className={'text-[#0070BB]'}>
+                                <Typography>YouTube</Typography>
+                            </Link>
                         </li>
                         <li className={'flex flex-row gap-2'}>
                             <Typography>Kryštof Klíma - </Typography>
-                            <Link href={'https://social.mldchan.dev/@Krysunka'} className={'text-[#0070BB]'}>Fedi</Link>
-                            <Link href={'https://code.mldchan.dev/Krysunka'} className={'text-[#0070BB]'}>Forgejo</Link>
+                            <Link href={'https://social.mldchan.dev/@Krysunka'} className={'text-[#0070BB]'}>
+                                <Typography>Fedi</Typography>
+                            </Link>
+                            <Link href={'https://code.mldchan.dev/Krysunka'} className={'text-[#0070BB]'}>
+                                <Typography>Forgejo</Typography>
+                            </Link>
+                            <Link href={'https://github.com/syntaxkrytof'} className={'text-[#0070BB]'}>
+                                <Typography>GitHub</Typography>
+                            </Link>
                         </li>
                     </ul>
                 </Stack>
+
+                <br />
+                <br />
+                <br />
 
                 <Footer />
                 <Header />
