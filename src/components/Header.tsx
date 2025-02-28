@@ -26,15 +26,12 @@ import React, { ReactNode } from "react";
 import { Avatar, Button, Divider, Dropdown, Menu, MenuButton, MenuItem, Stack } from "@mui/joy";
 import LoginDialog from "./Accounts/LoginDialog";
 import RegisterDialog from "./Accounts/RegisterDialog";
-import { useRouter } from "next/router";
 
 const dosis = localFont({ src: '../pages/fonts/Dosis-VariableFont_wght.ttf' });
 
 function LinkButton(props:{href: string, children: ReactNode | ReactNode[]}) {
-    const router = useRouter();
-
     const navigate = () => {
-        router.push(props.href);
+        location.href = props.href;
     }
 
     return <Button onClick={navigate} variant="plain">

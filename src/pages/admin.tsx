@@ -123,6 +123,9 @@ export default function AdminPanel(props: InferGetServerSidePropsType<typeof get
     }
 
     return <main className={`w-3/4 m-auto ${dosis.className}`}>
+        <a href='/'>
+            <Typography color="primary">Zpět</Typography>
+        </a>
         <Typography level="h1">Admin Panel</Typography>
         <Tabs>
             <TabList>
