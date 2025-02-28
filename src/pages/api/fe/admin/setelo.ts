@@ -17,7 +17,7 @@
  *
  */
 
-import { validateAdminAccount } from "@/components/backendUtils";
+import { getAccountFromToken, validateAdminAccount } from "@/components/backendUtils";
 import {PrismaClient} from "@prisma/client";
 import {NextApiRequest, NextApiResponse} from "next";
 
@@ -38,6 +38,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
+    const admin = await getAccountFromToken(token);
+
     const { userId, elo } = req.body as {userId: string, elo: string};
 
     if (isNaN(Number(elo))) {
@@ -50,6 +52,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const prisma = new PrismaClient();
     await prisma.$connect();
 
+    const prevUser = await prisma.user.findFirst({
+        where: {
+            userId
+        }
+    });
+
+    if (!prevUser) return res.status(404).send({error: 'User not found'});
+
     const upd = await prisma.user.update({
         data: {
             elo: Number(elo)
@@ -60,6 +70,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (upd) {
+    
+        await prisma.audit.create({
+            data: {
+                message: `Hráčovi ${prevUser.username} (${prevUser.email}) bylo změněno elo z ${prevUser.elo} na ${elo}.`,
+                sourceUserId: admin!.userId
+            }
+        });
+        
         res.status(200).send({
             status: 'ok'
         });

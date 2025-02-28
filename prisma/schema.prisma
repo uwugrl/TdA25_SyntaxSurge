@@ -76,6 +76,7 @@ model User {
   Matchmaking Matchmaking[]
   Game1       Game[]        @relation(name: "player1")
   Game2       Game[]        @relation(name: "player2")
+  Audit       Audit[]
 }
 
 model UserTokens {
@@ -91,4 +92,12 @@ model Matchmaking {
   player1   User     @relation(fields: [player1ID], references: [userId])
   expires   DateTime
   code      String   @default("")
+}
+
+model Audit {
+  id           Int      @id @default(autoincrement())
+  message      String
+  sourceUserId String
+  sourceUser   User     @relation(fields: [sourceUserId], references: [userId])
+  createdAt    DateTime @default(now())
 }

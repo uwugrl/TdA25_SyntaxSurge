@@ -17,7 +17,7 @@
  *
  */
 
-import { validateAdminAccount } from "@/components/backendUtils";
+import { getAccountFromToken, validateAdminAccount } from "@/components/backendUtils";
 import {PrismaClient} from "@prisma/client";
 import {NextApiRequest, NextApiResponse} from "next";
 
@@ -41,6 +41,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
+    const admin = await getAccountFromToken(token);
+
     const { id, name } = req.body as { id: string, name: string};
 
     if (!id || !name) {
@@ -48,6 +50,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             error: 'Invalid parameters'
         });
     }
+
+    const prevGame = await prisma.game.findFirst({
+        where: {
+            id
+        }
+    });
+
+    if (!prevGame) return res.status(404).send({error: 'Game not found'});
 
     const upd = await prisma.game.update({
         where: {
@@ -59,11 +69,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (upd) {
+        await prisma.audit.create({
+            data: {
+                message: `Hra jménem "${prevGame.name}" byla přejmenována na ${name}.`,
+                sourceUserId: admin!.userId
+            }
+        });
+        
         res.status(200).send({
             status: 'ok'
         });
         return;
     }
+
 
     res.status(404).send({
         error: 'Game not found'

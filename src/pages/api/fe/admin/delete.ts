@@ -17,7 +17,7 @@
  *
  */
 
-import { validateAdminAccount } from "@/components/backendUtils";
+import { getAccountFromToken, validateAdminAccount } from "@/components/backendUtils";
 import {PrismaClient} from "@prisma/client";
 import {NextApiRequest, NextApiResponse} from "next";
 
@@ -41,6 +41,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
     }
 
+    const admin = await getAccountFromToken(token);
+
     const { id } = req.body as { id: string, name: string};
 
     if (!id) {
@@ -48,6 +50,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             error: 'Invalid parameters'
         });
     }
+
+    const game = await prisma.game.findFirst({
+        where: {
+            id
+        }
+    });
+
+    if (!game) return res.status(404).send({error: 'Game not found'});
 
     await prisma.gameBoard.deleteMany({
         where: {
@@ -58,6 +68,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await prisma.game.delete({
         where: {
             id
+        }
+    });
+
+    await prisma.audit.create({
+        data: {
+            message: `Hra jménem "${game.name}" byla smazána.`,
+            sourceUserId: admin!.userId
         }
     });
 

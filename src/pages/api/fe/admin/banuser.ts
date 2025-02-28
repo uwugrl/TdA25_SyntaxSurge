@@ -17,21 +17,21 @@
  *
  */
 
-import { validateAdminAccount } from "@/components/backendUtils";
+import { getAccountFromToken, validateAdminAccount } from "@/components/backendUtils";
 import {PrismaClient} from "@prisma/client";
 import {NextApiRequest, NextApiResponse} from "next";
+
+const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const {token} = req.cookies;
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
     if (!await validateAdminAccount(token)) return res.status(403).send({ error: 'Forbidden: Not an admin account' });
+    const admin = await getAccountFromToken(token);
 
     const { userId, reason } = req.body as {userId: string, reason: string };
 
     if (!reason || !userId) return res.status(400).send({ error: 'Missing parameters' });
-
-    const prisma = new PrismaClient();
-    await prisma.$connect();
 
     const acc = await prisma.user.findFirst({
         where: {
@@ -59,11 +59,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (upd) {
+        await prisma.audit.create({
+            data: {
+                message: `Uživatel ${acc.username} (${acc.email}) byl zabanován.`,
+                sourceUserId: admin!.userId
+            }
+        });
         res.status(200).send({
             status: 'ok'
         });
         return;
     }
+
 
     res.status(404).send({
         error: 'User not found'

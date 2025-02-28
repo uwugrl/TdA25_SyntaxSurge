@@ -55,13 +55,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (await client.user.count() === 0) {
         const userId = uuidv4();
 
-        await client.user.create({
+        const u = await client.user.create({
             data: {
                 userId,
                 username: "TdA",
                 email: "tda@scg.cz",
                 password: await hash("StudentCyberGames25!"),
                 administrator: true
+            }
+        });
+
+        await client.audit.create({
+            data: {
+                message: 'Systém byl připraven k prvnímu použití. Byl vytvořen výchozí účet.',
+                sourceUserId: u.userId
             }
         });
     }
