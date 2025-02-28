@@ -37,7 +37,9 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
             explicitWinner: x.explicitWinner
         })), users = await client.user.count(), gamesCount = await client.game.count(),
         gamesToday = await client.game.count({where: {
-            createdAt: moment().subtract(1, 'd').toDate()
+            createdAt: {
+                gt: moment().subtract(1, 'd').toDate()
+            }
         }});
 
     await client.$disconnect();
@@ -100,7 +102,7 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
                 </div>
 
                 <div className="grid gric-cols-1 lg:grid-cols-2 place-items-start">
-                    <Image alt="Hra sachy" src={piskvorky} width={600} height={600} />
+                    <Image alt="Hra sachy" src={piskvorky} width={600} height={600} className="ml-[5%] lg:ml-[15%] xl:ml-[20%]" />
                     <Stack gap={1} alignItems={"center"} width={"100%"}>
                         <Typography fontSize={'80px'} fontWeight={'bold'}>Piškvorky!</Typography>
                         <Typography textAlign={'center'}>{`Registrovaní hráči: ${props.users}`}</Typography>

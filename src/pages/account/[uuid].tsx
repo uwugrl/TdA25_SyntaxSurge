@@ -81,17 +81,24 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
             <br/>
             <br/>
             <br/>
+            <br/>
 
             <Stack gap={1}>
                 <Typography level="h1" textAlign="center">{props.name}</Typography>
                 <div className="m-auto text-center">
                     <Typography>{props.about || 'Uživatel nic o sobě nenapsal/a.'}</Typography>
                     
-                    <Stack gap={1} direction="row" sx={{marginTop: '2em'}}>
+                    <Stack gap={1} direction="row" className="justify-center mt-4">
                         <Stack gap={1} width="100px" height="100px">
                             <Typography fontWeight="bold">ELO</Typography>
                             <Typography fontSize="24px">{props.elo}</Typography>
                         </Stack>
+                        <Stack gap={1} width="100px" height="100px">
+                            <Typography fontWeight="bold">W/L ratio</Typography>
+                            <Typography fontSize="24px">{wlRatioFinal}</Typography>
+                        </Stack>
+                    </Stack>
+                    <Stack gap={1} direction="row" className="justify-center">
                         <Stack gap={1} width="100px" height="100px">
                             <Typography fontWeight="bold">Wins</Typography>
                             <Typography fontSize="24px">{props.wins}</Typography>
@@ -104,13 +111,10 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
                             <Typography fontWeight="bold">Draws</Typography>
                             <Typography fontSize="24px">{props.draws}</Typography>
                         </Stack>
-                        <Stack gap={1} width="100px" height="100px">
-                            <Typography fontWeight="bold">W/L ratio</Typography>
-                            <Typography fontSize="24px">{wlRatioFinal}</Typography>
-                        </Stack>
                     </Stack>
                     <Typography>{`Připojil/a se ${formatDate(new Date(props.joined))}`}</Typography>
                 </div>
+                {props.isSelf && <Button onClick={settings} sx={{width: '600px'}} className="self-center">Upravit profil</Button>}
 
                 <Stack gap={1}>
                     <Typography level="h1">Historie her</Typography>
@@ -145,7 +149,6 @@ export default function Profile(props: InferGetServerSidePropsType<typeof getSer
                     <Pagination {...props} page={page} lastPage={lastPage} setPage={x => setPage(x)} />
                 </Stack>
                     
-                {props.isSelf && <Button onClick={settings}>Upravit profil</Button>}
             </Stack>
             
             <Header />
