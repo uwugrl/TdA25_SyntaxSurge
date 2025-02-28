@@ -1,13 +1,13 @@
 import {fromDbBoard, fromDbDifficulty} from "@/components/fromDB";
-import {PrismaClient} from "@prisma/client";
+import {PrismaClient, User} from "@prisma/client";
 import {GetServerSidePropsContext, InferGetServerSidePropsType} from "next";
 import GameBoard from "@/components/Game/GameBoard";
 import localFont from "next/font/local";
 import {determineGameState, evalWinner} from "@/components/gameUtils";
-import TdA from "@/components/logo";
-import Image from "next/image";
 import Metadata from "@/components/Metadata";
-import {useRouter} from "next/router";
+import React from "react";
+import Header from "@/components/Header";
+import { Card, CardContent, Stack, Typography } from "@mui/joy";
 
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
@@ -18,8 +18,8 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     }
 
-    const prisma = new PrismaClient();
-    const game = await prisma.game.findUnique({
+    const prisma = new PrismaClient(),
+     game = await prisma.game.findUnique({
         where: {
             id: uuid
         }, include: {
@@ -27,7 +27,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     });
 
-    // game: {id, x, y, state, gameID}[]
+    // Game: {id, x, y, state, gameID}[]
 
     if (!game) {
         return {
@@ -35,10 +35,24 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
         }
     }
 
-    const board: ("X" | "O" | "")[][] = fromDbBoard(game.board);
-    const difficulty = fromDbDifficulty(game.difficulty);
+    const board: ("X" | "O" | "")[][] = fromDbBoard(game.board),
+     difficulty = fromDbDifficulty(game.difficulty);
 
     // Identify what symbol should be next for the game
+
+    const winner = evalWinner(fromDbBoard(game.board));
+    let winnerUser: User | null = null;
+    if (winner === "X") {
+        winnerUser = await prisma.user.findFirst({where: {userId: game.player1ID ?? ''}}); 
+    } else if (winner === 'O') {
+        winnerUser = await prisma.user.findFirst({where: {userId: game.player2ID ?? ''}});
+    }
+
+    if (game.explicitWinner === 1) {
+        winnerUser = await prisma.user.findFirst({where: {userId: game.player1ID ?? ''}});
+    } else if (game.explicitWinner === 2) {
+        winnerUser = await prisma.user.findFirst({where: {userId: game.player2ID ?? ''}});
+    }
 
     await prisma.$disconnect();
     return {
@@ -48,9 +62,13 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
                 name: game.name,
                 createdAt: game.createdAt.toISOString(),
                 updatedAt: game.updatedAt.toISOString(),
-                difficulty: difficulty,
-                board: board,
-                gameState: determineGameState(board)
+                difficulty,
+                board,
+                gameState: determineGameState(board),
+                winner: winnerUser ? {
+                    username: winnerUser.username
+                } : null,
+                explicitWinner: game.explicitWinner
             }
         }
     }
@@ -59,41 +77,33 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 const dosis = localFont({src: '../../fonts/Dosis-VariableFont_wght.ttf'});
 
 export default function ViewSavedGame(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
-
-    const router = useRouter();
-
-    const winner = evalWinner(props.game.board, 5);
-
-    const getWinnerImage = () => {
-        switch (winner) {
-            case "X":
-                return <Image src={'/Icon/X_cervene.svg'} alt={'X'} width={16} height={16}/>;
-            case "O":
-                return <Image src={'/Icon/O_modre.svg'} alt={'O'} width={16} height={16}/>;
-            case "":
-                return null;
-        }
-    }
-
-    const takeOverGame = () => {
-        localStorage.setItem("game", props.game.uuid);
-        router.push('/game');
-    }
+    const winner = props.game.explicitWinner === 0 ? evalWinner(props.game.board, 5) :
+        props.game.explicitWinner === 1 ? 'X' : 'O';
 
     return <>
         <Metadata title={props.game.name} description={'Hrajte piškvorky na Think different Academy ještě dnes!'}/>
         <main className={`w-3/4 m-auto ${dosis.className}`}>
-            <TdA />
-            <h1 className={'text-3xl font-bold my-2'}>{props.game.name}</h1>
+            <Header />
+            {[1,2,3,4,5].map(x => <br key={x}/>)}
+            <Typography level="h1">{`Hra: ${props.game.name}`}</Typography>
             <GameBoard board={props.game.board}/>
-            {props.game.gameState === 'midgame' && <div className={'p-2 border-[#E31837] border-2 m-1 rounded-lg drop-shadow-md'}>
-                <h2 className={'text-2xl font-bold'}>Hra právě probíhá.</h2>
-                <button className={'border-2 border-white text-xl rounded-lg p-1 px-2 mt-2 hover:text-[#E31837] hover:bg-white'} onClick={takeOverGame}>Převzít tuto hru</button>
-            </div>}
-            {winner === "" || <div className={'p-2 m-1 rounded-lg drop-shadow-md border-2 border-[#E31837]'}>
-                <h2 className={'text-2xl font-bold'}>Hra je ukončena.</h2>
-                <p className={'flex flex-row gap-2'}>Hru vyhráli {getWinnerImage()}</p>
-            </div>}
+
+            {[1,2].map(x => <br key={x} />)}
+
+            <Card>
+                <CardContent>
+                    <Stack gap={1}>
+                        <Typography level="h3">Stav hry</Typography>
+                        {props.game.gameState === 'opening' && !winner && <Typography>Hra právě začala.</Typography>}
+                        {props.game.gameState === 'midgame' && !winner && <Typography>Hra probíhá.</Typography>}
+                        {winner === "" || <Stack direction="row" gap={1}>
+                            <Typography alignSelf="center">{`Hra skončila. Hru vyhrál/a ${props.game.winner!.username}`}</Typography>
+                        </Stack>}
+                    </Stack>
+                </CardContent>
+            </Card>
+
+            {[1,2,3].map(x => <br key={x}/>)}
         </main>
     </>
 }

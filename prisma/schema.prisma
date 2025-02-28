@@ -1,26 +1,103 @@
 datasource db {
-    provider = "sqlite"
-    url      = "file:./data/data.db"
+  provider = "sqlite"
+  url      = "file:./data/data.db"
 }
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 model Game {
-    id         String      @id
-    name       String
-    createdAt  DateTime    @default(now())
-    updatedAt  DateTime    @updatedAt
-    difficulty Int
-    board      GameBoard[]
+  id          String      @id
+  name        String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  difficulty  Int
+  board       GameBoard[]
+  player1ID   String?
+  player1     User?       @relation(name: "player1", fields: [player1ID], references: [userId])
+  player2ID   String?
+  player2     User?       @relation(name: "player2", fields: [player2ID], references: [userId])
+  suggestDraw Boolean     @default(false)
+
+  // Timers
+  player1Timer      Int      @default(480)
+  player1TimerStart DateTime @default(now())
+  player2Timer      Int      @default(480)
+  player2TimerStart DateTime @default(now())
+
+  explicitWinner Int @default(0)
+}
+
+model FreeGame {
+  id       String          @id
+  name     String
+  board    FreeGameBoard[]
+  gameCode String          @unique
+  expires  DateTime?
 }
 
 model GameBoard {
-    id     Int    @id @default(autoincrement())
-    x      Int
-    y      Int
-    game   Game   @relation(fields: [gameId], references: [id])
-    gameId String
-    state  Int
+  id     Int    @id @default(autoincrement())
+  x      Int
+  y      Int
+  game   Game   @relation(fields: [gameId], references: [id])
+  gameId String
+  state  Int
+}
+
+model FreeGameBoard {
+  id     Int      @id @default(autoincrement())
+  x      Int
+  y      Int
+  game   FreeGame @relation(fields: [gameId], references: [id])
+  gameId String
+  state  Int
+}
+
+model User {
+  userId         String   @id
+  username       String   @unique
+  email          String   @unique
+  password       String // argon2id hashed pass
+  createDate     DateTime @default(now())
+  lastActiveDate DateTime @default(now())
+  lastUpdateDate DateTime @default(now()) @updatedAt
+  elo            Int      @default(400)
+  wins           Int      @default(0)
+  draws          Int      @default(0)
+  losses         Int      @default(0)
+  administrator  Boolean  @default(false)
+  banned         Boolean  @default(false)
+  banReason      String?
+  aboutMe        String   @default("")
+
+  userTokens  UserTokens[]
+  Matchmaking Matchmaking[]
+  Game1       Game[]        @relation(name: "player1")
+  Game2       Game[]        @relation(name: "player2")
+  Audit       Audit[]
+}
+
+model UserTokens {
+  tokenId Int    @id @default(autoincrement())
+  userId  String
+  user    User   @relation(fields: [userId], references: [userId])
+  token   String
+}
+
+model Matchmaking {
+  id        Int      @id @default(autoincrement())
+  player1ID String
+  player1   User     @relation(fields: [player1ID], references: [userId])
+  expires   DateTime
+  code      String   @default("")
+}
+
+model Audit {
+  id           Int      @id @default(autoincrement())
+  message      String
+  sourceUserId String
+  sourceUser   User     @relation(fields: [sourceUserId], references: [userId])
+  createdAt    DateTime @default(now())
 }

@@ -12,8 +12,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        const prisma = new PrismaClient();
-        const game = await prisma.game.findUnique({
+        const prisma = new PrismaClient(),
+         game = await prisma.game.findUnique({
             where: {
                 id: req.query.uuid as string
             }, include: {
@@ -21,15 +21,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
         });
 
-        // game: {id, x, y, state, gameID}[]
+        // Game: {id, x, y, state, gameID}[]
 
         if (!game) {
             res.status(404).json({error: "Game not found"});
             return;
         }
 
-        const board: ("X" | "O" | "")[][] = fromDbBoard(game.board);
-        const difficulty = fromDbDifficulty(game.difficulty);
+        const board: ("X" | "O" | "")[][] = fromDbBoard(game.board),
+         difficulty = fromDbDifficulty(game.difficulty);
 
         await prisma.$disconnect();
         res.status(200).json({
@@ -37,8 +37,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             name: game.name,
             createdAt: game.createdAt.toISOString(),
             updatedAt: game.updatedAt.toISOString(),
-            difficulty: difficulty,
-            board: board,
+            difficulty,
+            board,
             gameState: determineGameState(board)
         });
     } else if (req.method == "PUT") {
@@ -67,13 +67,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        let difficulty = toDbDifficulty(data.difficulty);
+        const difficulty = toDbDifficulty(data.difficulty);
         if (difficulty == "Invalid value") {
             res.status(422).json({error: `Invalid difficulty ${data.difficulty}`});
             return;
         }
 
-        let board = toDbBoard(data.board);
+        const board = toDbBoard(data.board);
         if (board == "Semantic error") {
             res.status(422).json({error: "Semantic error"});
             return;
@@ -86,11 +86,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             where: {
                 id: req.query.uuid as string
             }, data: {
-                name: data.name, difficulty: difficulty
+                name: data.name, difficulty
             }
         });
 
-        for (let i in board) {
+        for (const i in board) {
             await prisma.gameBoard.updateMany({
                 where: {
                     gameId: req.query.uuid as string, x: board[i].x, y: board[i].y

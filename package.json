@@ -3,27 +3,46 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npx nodemon -e prisma --exec \"npm run start:dev\"",
     "build": "next build",
     "start": "next start -p 80",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:push": "npx prisma db push",
+    "db:generate": "npx prisma generate",
+    "start:dev": "npm run db:push && npm run db:generate && next dev -p 8000",
+    "start:prod": "npm run db:push && npm run start"
   },
   "dependencies": {
-    "@prisma/client": "^6.0.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.5",
+    "@mui/joy": "^5.0.0-beta.51",
+    "@mui/material": "^6.4.5",
+    "@prisma/client": "^6.3.1",
     "@sentry/nextjs": "8",
-    "next": "15.0.3",
-    "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106",
+    "argon2": "^0.41.1",
+    "check-password-strength": "^3.0.0",
+    "moment": "^2.30.1",
+    "next": "^15.1.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.20.0",
     "@types/node": "^22.10.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "eslint": "^9.20.1",
+    "eslint-plugin-react": "^7.37.4",
+    "globals": "^15.15.0",
+    "nodemon": "3.1.9",
     "postcss": "^8",
-    "prisma": "^6.0.0",
+    "prisma": "^6.3.1",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
-  }
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.24.0"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

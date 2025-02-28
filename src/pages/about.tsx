@@ -18,11 +18,12 @@
  */
 
 import Metadata from "@/components/Metadata";
-import Image from "next/image";
-import Logo from "@/Logo.png";
 import React from "react";
 import localFont from "next/font/local";
 import Link from "next/link";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Stack, Typography } from "@mui/joy";
 
 const dosis = localFont({src: './fonts/Dosis-VariableFont_wght.ttf'});
 
@@ -31,17 +32,20 @@ export default function About() {
         <>
             <Metadata title={'O aplikaci'} description={'O aplikaci Think different Academy!'}/>
             <main className={`w-3/4 m-auto ${dosis.className}`}>
-                <div className={'m-6 text-center'}>
-                    <Image src={Logo} alt={"Think different Academy"}/>
-                </div>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
 
                 <Link href={'/'} className={'text-[#0070BB]'}>
                     Zpět do aplikace
                 </Link>
 
-                <h1 className={'text-center text-3xl font-bold'}>O naší aplikaci</h1>
+                <Stack gap={2}>
+                    <Typography level="h1" textAlign="center">O naší aplikaci</Typography>
 
-                <p className={'my-2'}>Aplikace Think different Academy vám umožňuje hrát piškvorky.</p>
+                    <Typography>Aplikace Think different Academy vám umožňuje hrát piškvorky.</Typography>
 
                 <p className={'my-2'}>
                     Tento program je svobodný software: můžete jej šířit a/nebo upravovat za podmínek licence GNU Affero

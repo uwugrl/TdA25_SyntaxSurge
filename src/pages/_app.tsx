@@ -1,7 +1,36 @@
+import React from "react";
 import "@/styles/globals.css";
 import type {AppProps} from "next/app";
+import {CssVarsProvider, extendTheme} from "@mui/joy";
+import localFont from "next/font/local";
 
+const dosis = localFont({src: './fonts/Dosis-VariableFont_wght.ttf'});
+
+const theme = extendTheme({
+    fontFamily: {
+        body: dosis.style.fontFamily,
+        display: dosis.style.fontFamily
+    },
+    fontSize: {
+        sm: '20px',
+        md: '24px',
+        lg: '28px',
+        xl: '32px'
+    },
+    colorSchemes: {
+        dark: {
+            palette: {
+                background: {
+                    surface: '1a1a1a'
+                }
+            }
+        }
+    }
+})
 
 export default function App({Component, pageProps}: AppProps) {
-    return <Component {...pageProps} />;
+    return <>
+        <CssVarsProvider defaultMode='dark' theme={theme}/>
+        <Component {...pageProps} />
+    </>
 }

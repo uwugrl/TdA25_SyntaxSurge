@@ -27,13 +27,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        let difficulty = toDbDifficulty(data.difficulty);
+        const difficulty = toDbDifficulty(data.difficulty);
         if (difficulty == "Invalid value") {
             res.status(422).json({error: `Invalid difficulty ${data.difficulty}`});
             return;
         }
 
-        let board = toDbBoard(data.board);
+        const board = toDbBoard(data.board);
         if (board == "Semantic error") {
             res.status(422).json({error: "Semantic error"});
             return;
@@ -46,11 +46,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         await prisma.game.create({
             data: {
-                id, name: data.name, difficulty: difficulty, board: {
+                id, name: data.name, difficulty, board: {
                     createMany: {
                         data: board,
                     },
-                },
+                }
             },
         });
 
@@ -82,17 +82,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         const parsedGames = [];
-        for (let game of games) {
-            const board: ("X" | "O" | "")[][] = fromDbBoard(game.board);
-            let difficulty = fromDbDifficulty(game.difficulty);
+        for (const game of games) {
+            const board: ("X" | "O" | "")[][] = fromDbBoard(game.board),
+             difficulty = fromDbDifficulty(game.difficulty);
 
             parsedGames.push({
                 uuid: game.id,
                 createdAt: game.createdAt.toISOString(),
                 updatedAt: game.updatedAt.toISOString(),
                 name: game.name,
-                difficulty: difficulty,
-                board: board,
+                difficulty,
+                board,
                 gameState: determineGameState(board)
             });
         }
