@@ -107,7 +107,7 @@ export default function AdminPanel(props: InferGetServerSidePropsType<typeof get
         });
     }
 
-    const markUserBanned = (id: string) => {
+    const markUserBanned = (id: string, reason: string) => {
         setUsers(
             users.map(x => {
                 
@@ -116,7 +116,20 @@ export default function AdminPanel(props: InferGetServerSidePropsType<typeof get
                 return {
                     ...x,
                     banned: true,
-                    banReason: ''
+                    banReason: reason
+                }
+            })
+        );
+    }
+    const markUserUnbanned = (id: string) => {
+        setUsers(
+            users.map(x => {
+                
+                if (x.id !== id) return x;
+
+                return {
+                    ...x,
+                    banned: false
                 }
             })
         );
@@ -136,16 +149,16 @@ export default function AdminPanel(props: InferGetServerSidePropsType<typeof get
 
             <TabPanel value={0}>
                 <Stack gap={1}>
-                    {props.users.filter(x => !x.banned).map(x => (
-                        <UserCard user={x} key={x.id} userBanned={() => markUserBanned(x.id)} />
+                    {users.filter(x => !x.banned).map(x => (
+                        <UserCard user={x} key={x.id} userBanned={(y) => markUserBanned(x.id, y)} userUnbanned={() => markUserUnbanned(x.id)}  />
                     ))}
                 </Stack>
             </TabPanel>
 
             <TabPanel value={1}>
                 <Stack gap={1}>
-                    {props.users.filter(x => x.banned).map(x => (
-                        <UserCard user={x} key={x.id} userBanned={() => markUserBanned(x.id)} />
+                    {users.filter(x => x.banned).map(x => (
+                        <UserCard user={x} key={x.id} userBanned={(y) => markUserBanned(x.id, y)} userUnbanned={() => markUserUnbanned(x.id)} />
                     ))}
                 </Stack>
             </TabPanel>

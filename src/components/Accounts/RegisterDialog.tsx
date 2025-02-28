@@ -97,10 +97,10 @@ export default function RegisterDialog(props: {
     return <Modal open={props.show} onClose={() => hide()}>
         <ModalDialog>
             {loading || <ModalClose onClick={() => hide()}/>}
-            <DialogTitle>Registrace</DialogTitle>
+            <DialogTitle className="self-center">Registrace</DialogTitle>
             {showRegistered ? (
                 <Stack spacing={1}>
-                    <Typography fontWeight="bold">{`Vítejte v Think different Academy, ${username}!`}</Typography>
+                    <Typography fontWeight="bold" textAlign={"center"}>{`Vítejte v Think different Academy, ${username}!`}</Typography>
                 </Stack>
             ) : (
                 <Stack spacing={1}>

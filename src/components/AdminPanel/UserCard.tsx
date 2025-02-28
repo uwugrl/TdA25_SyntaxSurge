@@ -13,7 +13,8 @@ export default function UserCard(props: {
         banReason: string | null,
         admin: boolean
     },
-    userBanned: () => void
+    userBanned: (reason: string) => void,
+    userUnbanned: () => void
 }) {
     const [eloChange, setEloChange] = React.useState(false);
     const [elo, setElo] = React.useState(props.user.elo);
@@ -47,11 +48,24 @@ export default function UserCard(props: {
         }).then(() => {
             setBanLoading(false);
             setBan(false);
-            props.userBanned();
+            props.userBanned(banReason);
         }).catch(x => {
             setBanLoading(false);
             setBanError(x);
         })
+    }
+    const unbanAccount = () => {
+        setBanLoading(true);
+        apiPost('/admin/unbanuser', {
+            userId: props.user.id
+        }).then(() => {
+            setBanLoading(false);
+            setBan(false);
+            props.userUnbanned();
+        }).catch(x => {
+            setBanLoading(false);
+            setBanError(x);
+        });
     }
 
     return <>
@@ -65,6 +79,7 @@ export default function UserCard(props: {
                 <Stack direction="row" gap={1}>
                     <Button onClick={() => setEloChange(true)}>Změnit ELO</Button>
                     {(!props.user.banned && !props.user.admin) && <Button onClick={() => setBan(true)} color="danger">Zabanovat</Button>}
+                    {(props.user.banned && !props.user.admin) && <Button onClick={() => unbanAccount()} color="danger">Odbanovat</Button>}
                 </Stack>
             </CardContent>
         </Card>

@@ -63,9 +63,9 @@ export default function LoginDialog(props: {
     return <Modal open={props.show} onClose={() => hide()}>
         <ModalDialog>
             {loading || <ModalClose onClick={() => hide()}/>}
-            <DialogTitle>Přihlásit se</DialogTitle>
+            <DialogTitle className="self-center">Přihlásit se</DialogTitle>
             {showLoggedIn ? (
-                <Stack spacing={1}>
+                <Stack spacing={1} textAlign={"center"}>
                     <Typography fontWeight="bold">{`Vítejte zpět, ${username}!`}</Typography>
                 </Stack>
             ) : (

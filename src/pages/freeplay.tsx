@@ -24,14 +24,17 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 
 function CreateGame(props: {
     loading: boolean,
-    gameName: string,
-    gameCode: string,
-    setGameName: (value: string) => void,
-    setGameCode: (value: string) => void,
+    gameName: string
+    setGameName: (value: string) => void
     error: string,
-    createGame: () => void,
-    joinGame: () => void
+    createGame: () => void
 }) {
+    const [gameCode, setGameCode] = React.useState('');
+
+    const joinGame = () => {
+        location.href = `/freeplay?game=${gameCode}`;
+    }
+    
     return <Stack gap={1}>
         <div className="grid grid-cols-2 w-full text-center gap-40 lg:gap-64 mt-24">
             <Stack gap={1}>
@@ -49,10 +52,10 @@ function CreateGame(props: {
                 <br />
                 <Typography>Kód hry</Typography>
                 <br />
-                <Input disabled={props.loading} type="text" value={props.gameCode} onChange={x => {props.setGameCode(x.currentTarget.value)}} placeholder="Zadejte kód hry..."/>
+                <Input disabled={props.loading} type="text" value={gameCode} onChange={x => {setGameCode(x.currentTarget.value)}} placeholder="Zadejte kód hry..."/>
                 
                 <br />
-                <Button color="success" disabled={props.loading} onClick={props.joinGame}>Připojit</Button>
+                <Button color="success" disabled={props.loading} onClick={joinGame}>Připojit</Button>
             </Stack>
         </div>
         {props.error && <Typography color="danger">{props.error}</Typography>}
@@ -60,9 +63,6 @@ function CreateGame(props: {
 }
 
 export default function Freeplay(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
-
-    const whoIsPlaying = React.useRef(props.placing);
-
     const [board, setBoard] = React.useState([] as ("X" | "O" | "")[][]);
     const boardRef = React.useRef<("X" | "O" | "")[][]>([]);
 
@@ -70,7 +70,7 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
     const [error, setError] = React.useState('');
     const [loading, setLoading] = React.useState(false);
 
-    const [gameCode, setGameCode] = React.useState('');
+    const [gameCode, setGameCode] = React.useState(props.game);
 
     const [isplaying, setIsplaying] = React.useState(props.placing === 'O');
 
@@ -92,7 +92,7 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
                     setIsplaying(true);
                     setGameCode(code);
                     setLoading(false);
-                    setIsCurrentlyPlaying(getNextSymbol(boardRef.current) === whoIsPlaying.current);
+                    setIsCurrentlyPlaying(getNextSymbol(boardRef.current) === props.placing);
                 }).catch(x => {
                     setError(x);
                     setLoading(false);
@@ -113,7 +113,6 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
             boardRef.current = y.board;
             setIsplaying(true);
             setLoading(false);
-            whoIsPlaying.current = 'O';
 
             setInterval(() => {
                 apiGet(`/freeplay/board?gameCode=${gameCode}`).then(x => {
@@ -124,6 +123,7 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
                     setIsplaying(true);
                     setGameCode(gameCode);
                     setLoading(false);
+                    setIsCurrentlyPlaying(getNextSymbol(boardRef.current) === props.placing);
                 }).catch(x => {
                     setError(x);
                     setLoading(false);
@@ -133,6 +133,18 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
             setError(x);
         })
     }
+
+    const hasRan = React.useRef(false);
+
+    React.useEffect(() => {
+        if (!hasRan.current) {
+            hasRan.current = true;
+            if (props.placing === 'O') {
+                joinGame();
+            }
+        }
+    });
+    
 
     function handleInteraction(x: number, y: number) {
         setError("");
@@ -148,8 +160,8 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
             return;
         }
 
-        console.log(getNextSymbol(boardRef.current), whoIsPlaying.current);
-        if (getNextSymbol(boardRef.current) !== whoIsPlaying.current) {
+        console.log(getNextSymbol(boardRef.current), props.placing);
+        if (getNextSymbol(boardRef.current) !== props.placing) {
             setError("Nehraješ!");
             return;
         }
@@ -174,16 +186,15 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
             <Header />
             {[1,2,3,4,5].map(x => <br key={x}/>)}
 
-            {isplaying || <CreateGame gameName={gameName} setGameName={setGameName} createGame={createGame} joinGame={joinGame}
-            error={error} loading={loading} gameCode={gameCode} setGameCode={setGameCode} />}
+            {isplaying || <CreateGame gameName={gameName} setGameName={setGameName} createGame={createGame} error={error} loading={loading} />}
 
             {(isplaying && board.length !== 0) && <div className="text-center">
                 <Typography level="h1">{gameName}</Typography>
                 <Typography>Kód hry: {gameCode}</Typography>
                 <Typography color={isCurrentlyPlaying ? "success" : "neutral"}>{isCurrentlyPlaying ? 'Hraješ!' : "Hraje protihráč..."}</Typography>
                 {evalWinner(board, 5) === '' || <>
-                    {evalWinner(board, 5) === whoIsPlaying.current && <Typography fontSize={"60px"} color="success">Vyhrál jsi!</Typography>}
-                    {evalWinner(board, 5) !== whoIsPlaying.current && <Typography fontSize={"60px"} color="danger">Prohrál jsi!</Typography>}
+                    {evalWinner(board, 5) === props.placing && <Typography fontSize={"60px"} color="success">Vyhrál jsi!</Typography>}
+                    {evalWinner(board, 5) !== props.placing && <Typography fontSize={"60px"} color="danger">Prohrál jsi!</Typography>}
                 </>}
                 <br />
                 {error && <Typography color="danger">{error}</Typography>}

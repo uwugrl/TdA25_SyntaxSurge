@@ -4,7 +4,7 @@ import GameComponent from '@/components/Game/Game';
 import React from "react";
 import Header from "@/components/Header";
 import { apiGet, apiPost } from "@/components/frontendUtils";
-import { Button, Typography } from "@mui/joy";
+import { Button, Stack, Typography } from "@mui/joy";
 
 const dosis = localFont({src: '../fonts/Dosis-VariableFont_wght.ttf'});
 
@@ -102,10 +102,11 @@ export default function Game() {
             <br/>
             <br/>
             {gameId === "" && <div className="text-center">
-                <Typography level="h3">Hledání hry... {formatSeconds()}</Typography>
-                <br/>
-                <Tip />
-                <Button onClick={endMatchmaking} color="danger">Zrušit matchmaking</Button>
+                <Stack gap={5}>
+                    <Typography level="h3">Hledání hry... {formatSeconds()}</Typography>
+                    <Tip />
+                    <Button onClick={endMatchmaking} color="danger">Zrušit matchmaking</Button>
+                </Stack>
             </div>}
             {gameId === "" ||
                 <GameComponent gameId={gameId} gameTitle={title} board={board} gameDifficulty={difficulty}/>}

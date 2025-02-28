@@ -96,13 +96,14 @@ export default function Home(props: InferGetServerSidePropsType<typeof getServer
             <br/>
             <br/>
             <br/>
+            <br/>
 
             <Stack spacing={1}>
                 <div className="text-center">
                 </div>
 
                 <div className="grid gric-cols-1 lg:grid-cols-2 place-items-start">
-                    <Image alt="Hra sachy" src={piskvorky} width={600} height={600} className="ml-[5%] lg:ml-[15%] xl:ml-[20%]" />
+                    <Image alt="Hra sachy" src={piskvorky} width={600} height={600} className="ml-[5%] 2xl:ml-[20%]" />
                     <Stack gap={1} alignItems={"center"} width={"100%"}>
                         <Typography fontSize={'80px'} fontWeight={'bold'}>Piškvorky!</Typography>
                         <Typography textAlign={'center'}>{`Registrovaní hráči: ${props.users}`}</Typography>

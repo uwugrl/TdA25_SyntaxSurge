@@ -98,7 +98,7 @@ export default function Header(props: {
             {showAdminButton && <LinkButton href="/admin">Admin</LinkButton>}
         </Stack>
 
-        <div className="flex flex-row items-center gap-6">
+        <Stack direction='row' gap={3}>
             {loggedIn ? (
                 <>
                     <Dropdown>
@@ -116,10 +116,10 @@ export default function Header(props: {
             ) : (
                 <>
                     <Button onClick={() => setShowLoginDialog(true)} variant="plain">Přihlásit se</Button>
-                    <Button onClick={() => setShowRegisterDialog(true)} variant="plain">Registrovat</Button>
+                    <Button onClick={() => setShowRegisterDialog(true)} variant="plain" className="mr-4">Registrovat</Button>
                 </>
             )}
-        </div>
+        </Stack>
 
         <LoginDialog show={showLoginDialog} hide={() => { setShowLoginDialog(false); refreshUserInformation(); }} />
         <RegisterDialog show={showRegisterDialog || (props.forceOpenRegisterDialog ?? false)} hide={() => { setShowRegisterDialog(false); refreshUserInformation(); if (props.closeRegisterDialog) props.closeRegisterDialog(); }} />
