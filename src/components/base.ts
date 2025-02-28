@@ -58,5 +58,10 @@ export function formatDate(d: Date): string {
             break;
     }
 
-    return `${formattedDate} ${d.getFullYear()} v ${d.getHours()}:${d.getMinutes()}`;
+    let hours = `${d.getHours()}`;
+    if (hours.length === 1) hours = `0${hours}`;
+    let minutes = `${d.getMinutes()}`;
+    if (minutes.length === 1) minutes = `0${minutes}`;
+
+    return `${formattedDate} ${d.getFullYear()} v ${hours}:${minutes}`;
 }
