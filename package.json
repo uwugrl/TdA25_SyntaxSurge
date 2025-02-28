@@ -9,7 +9,8 @@
     "lint": "next lint",
     "db:push": "npx prisma db push",
     "db:generate": "npx prisma generate",
-    "start:dev": "npm run db:push && npm run db:generate && next dev -p 8000"
+    "start:dev": "npm run db:push && npm run db:generate && next dev -p 8000",
+    "start:prod": "npm run db:push && npm run start"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

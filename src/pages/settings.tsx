@@ -180,12 +180,12 @@ function ProfileSecurity() {
 }
 
 function ProfileGames (props: {
-    games: { uuid: string, name: string, difficulty: string, createdAt: string, updatedAt: string, gameState: "opening" | "midgame" | "endgame" }[]
+    games: { uuid: string, name: string, difficulty: string, createdAt: string, updatedAt: string, gameState: "opening" | "midgame" | "endgame", explicitWinner: number }[]
 }) {
     return <Stack gap={1}>
         {props.games.map(x => (
             <GameCard key={x.uuid} uuid={x.uuid} name={x.name} createdAt={x.createdAt} updatedAt={x.updatedAt}
-        difficulty={x.difficulty} ended={x.gameState === "endgame"}/>
+        difficulty={x.difficulty} ended={x.gameState === "endgame"} explicitWinner={x.explicitWinner}/>
         ))}
     </Stack>
 }
@@ -227,7 +227,8 @@ export async function getServerSideProps(ctx:GetServerSidePropsContext) {
                     difficulty: fromDbDifficulty(x.difficulty) ?? 'medium',
                     createdAt: x.createdAt.toISOString(),
                     updatedAt: x.updatedAt.toISOString(),
-                    gameState: determineGameState(fromDbBoard(x.board))
+                    gameState: determineGameState(fromDbBoard(x.board)),
+                    explicitWinner: x.explicitWinner
                 }))
             }
         }

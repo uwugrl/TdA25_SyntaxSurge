@@ -31,4 +31,4 @@ EXPOSE 80
 
 STOPSIGNAL SIGKILL
 
-ENTRYPOINT [ "/app/DockerEntrypoint.sh" ]
+ENTRYPOINT [ "npm", "run", "start:prod" ]
