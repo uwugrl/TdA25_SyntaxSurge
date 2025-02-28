@@ -42,7 +42,7 @@ function CreateGame(props: {
                 <Input disabled={props.loading} type="text" value={props.gameName} onChange={x => {props.setGameName(x.currentTarget.value)}} placeholder="Zadejte jméno hry..."/>
                 
                 <br />
-                <Button disabled={props.loading} onClick={props.createGame}>Založit</Button>
+                <Button color="success" disabled={props.loading} onClick={props.createGame}>Založit</Button>
             </Stack>
             <Stack gap={1}>
                 <Typography level="h1" fontSize={"60px"}>Připoj!</Typography>
@@ -52,7 +52,7 @@ function CreateGame(props: {
                 <Input disabled={props.loading} type="text" value={props.gameCode} onChange={x => {props.setGameCode(x.currentTarget.value)}} placeholder="Zadejte kód hry..."/>
                 
                 <br />
-                <Button disabled={props.loading} onClick={props.joinGame}>Připojit</Button>
+                <Button color="success" disabled={props.loading} onClick={props.joinGame}>Připojit</Button>
             </Stack>
         </div>
         {props.error && <Typography color="danger">{props.error}</Typography>}
@@ -74,6 +74,8 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
 
     const [isplaying, setIsplaying] = React.useState(props.placing === 'O');
 
+    const [isCurrentlyPlaying, setIsCurrentlyPlaying] = React.useState(false);
+
     const createGame = () => {
         setLoading(true);
         apiPost('/freeplay/create', {
@@ -90,6 +92,7 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
                     setIsplaying(true);
                     setGameCode(code);
                     setLoading(false);
+                    setIsCurrentlyPlaying(getNextSymbol(boardRef.current) === whoIsPlaying.current);
                 }).catch(x => {
                     setError(x);
                     setLoading(false);
@@ -174,16 +177,18 @@ export default function Freeplay(props: InferGetServerSidePropsType<typeof getSe
             {isplaying || <CreateGame gameName={gameName} setGameName={setGameName} createGame={createGame} joinGame={joinGame}
             error={error} loading={loading} gameCode={gameCode} setGameCode={setGameCode} />}
 
-            {(isplaying && board.length !== 0) && <>
+            {(isplaying && board.length !== 0) && <div className="text-center">
                 <Typography level="h1">{gameName}</Typography>
                 <Typography>Kód hry: {gameCode}</Typography>
+                <Typography color={isCurrentlyPlaying ? "success" : "neutral"}>{isCurrentlyPlaying ? 'Hraješ!' : "Hraje protihráč..."}</Typography>
                 {evalWinner(board, 5) === '' || <>
                     {evalWinner(board, 5) === whoIsPlaying.current && <Typography fontSize={"60px"} color="success">Vyhrál jsi!</Typography>}
                     {evalWinner(board, 5) !== whoIsPlaying.current && <Typography fontSize={"60px"} color="danger">Prohrál jsi!</Typography>}
                 </>}
+                <br />
                 {error && <Typography color="danger">{error}</Typography>}
                 <GameBoard board={board} allowInteract={!loading} interact={handleInteraction} />
-            </>}
+            </div>}
 
             <br />
             <br />

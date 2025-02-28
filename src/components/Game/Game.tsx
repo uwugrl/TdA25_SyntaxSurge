@@ -1,7 +1,6 @@
 import GameBoard from "@/components/Game/GameBoard";
 import {useEffect, useRef, useState} from "react";
 import {evalWinner} from "@/components/gameUtils";
-import Link from "next/link";
 import { apiGet, apiPost } from "../frontendUtils";
 
 import React from "react";
@@ -10,9 +9,6 @@ import { Button, Stack, Typography } from "@mui/joy";
 export default function Game(params: {
     gameId: string, gameTitle: string, board: ("X" | "O" | "")[][], gameDifficulty: string
 }) {
-
-    const [gameName, setGameName] = useState('');
-
     const gameRef = useRef<("X" | "O" | "")[][]>(params.board); //nesnasim react
     const gameId = useRef('');
 
@@ -27,6 +23,15 @@ export default function Game(params: {
 
     const [player1Time, setPlayer1Time] = useState('');
     const [player2Time, setPlayer2Time] = useState('');
+
+    const [player1, setPlayer1] = useState('');
+    const [player2, setPlayer2] = useState('');
+
+    const [player1ID, setPlayer1ID] = useState('');
+    const [player2ID, setPlayer2ID] = useState('');
+
+    const [player1Elo, setPlayer1Elo] = useState(0);
+    const [player2Elo, setPlayer2Elo] = useState(0);
 
     const [explicitWin, setExplicitWin] = useState(0);
 
@@ -63,6 +68,12 @@ export default function Game(params: {
                         difficulty: string, 
                         onMove: boolean, 
                         winner: boolean,
+                        player1: string,
+                        player2: string,
+                        player1ID: string,
+                        player2ID: string,
+                        player2Elo: number,
+                        player1Elo: number,
                         p1LeftTime: number,
                         p2LeftTime: number,
                         explicit: number,
@@ -71,12 +82,17 @@ export default function Game(params: {
                     console.log(game.status);
 
                     setGame(game.board);
-                    setGameName(game.name);
                     gameRef.current = game.board;
                     gameId.current = game.gameId;
                     setWinner(evalWinner(game.board, 5));
                     setOnMove(game.onMove);
                     setHasWon(game.winner);
+                    setPlayer1(game.player1);
+                    setPlayer2(game.player2);
+                    setPlayer1ID(game.player1ID);
+                    setPlayer2ID(game.player2ID);
+                    setPlayer1Elo(game.player1Elo);
+                    setPlayer2Elo(game.player2Elo);
                     setPlayer1Time(formatPlayerTime(game.p1LeftTime));
                     setPlayer2Time(formatPlayerTime(game.p2LeftTime));
                     setExplicitWin(game.explicit);
@@ -125,9 +141,12 @@ export default function Game(params: {
         });
     }
 
-    const mainMenu = () => {
-        localStorage.removeItem("game");
-        location.href = '/';
+    const giveUp = () => {
+        if (winner === "" && explicitWin === 0) {
+            apiGet('/game/giveup');
+        } else {
+            location.href = '/';
+        }
     }
 
     const suggestDrawFunc = () => {
@@ -167,67 +186,87 @@ export default function Game(params: {
     }
 
     return (<>
-        <div className="m-auto">
-            <Typography level="h1" textAlign="center" fontSize={"60px"}>
-                {gameName}
-            </Typography>
-        </div>
-
         {(winner === "" && explicitWin === 0) && (
             <>
                 <div className="flex flex-row justify-around">
-                    <Typography fontSize={'36px'} fontWeight={'bold'}>{player1Time}</Typography>
-                    <Typography fontSize={'36px'} fontWeight={'bold'}>{player2Time}</Typography>
                 </div>
                 {onMove ? <Typography fontSize="30px" color="success" textAlign={"center"}>Hraješ!</Typography> : <Typography fontSize="30px" textAlign={"center"}>Hraje protihráč...</Typography>}
             </>
         )}
         {(winner === "" && explicitWin === 0) || (
-            <>
+            <div className="flex items-center flex-col text-center">
                 <Stack gap={1}>
-                    <Stack direction="row" gap={1}>
-                        {explicitWin === 2 ? <>
-                            <Typography level="h3">Remíza.</Typography>
-                        </> : <>
-                            <Typography level="h3" alignSelf="center">{hasWon ? 'Vyhrál jsi!' : 'Prohrál jsi.'}</Typography>
-                        </>}
-                    </Stack>
-                    <Stack direction="row" gap={1}>
-                        <Button size="lg" onClick={newGame}>Hrát znovu s aktuálním hráčem</Button>
-                        <Button size="lg" onClick={mainMenu}>Hlavní menu</Button>
-                    </Stack>
+                    {explicitWin === 2 ? <>
+                        <Typography level="h3">Remíza.</Typography>
+                    </> : <>
+                        <Typography level="h3" fontSize={"80px"}>{hasWon ? 'Vyhrál jsi!' : 'Prohrál jsi.'}</Typography>
+                    </>}
+                    <Button size="lg" onClick={newGame}>Hrát znovu s aktuálním hráčem</Button>
+                    <br />
                 </Stack>
-            </>
+            </div>
         )}
 
-        {error && <Typography color="danger">{error}</Typography>}
+        {error && <Typography color="danger" className="text-center my-2">{error}</Typography>}
 
-        <GameBoard allowInteract={isLoaded} board={game} interact={handleInteraction}/>
+        <Stack direction={"row"} gap={1}>
+            <div className="flex items-center">
+                <Stack gap={1} className="mx-auto text-center w-56">
+                    <img src="/Icon/X_cervene.svg" alt="X" width={100} height={100} className="self-center mb-8" />
+                    <a href={`/account/${player1ID}`} target="_blank" rel="noreferrer">
+                        <Typography fontSize={"40px"}>{player1}</Typography>
+                    </a>
+                    {(winner === "" && explicitWin === 0) && (
+                        <>
+                            <Typography fontSize={'36px'} fontWeight={'bold'}>{player1Time}</Typography>
+                            <br />
+                            <Typography fontSize={'32px'}>{`ELO: ${player1Elo}`}</Typography>
+                        </>
+                    )}
+                </Stack>
+            </div>
+            <GameBoard allowInteract={isLoaded} board={game} interact={handleInteraction}/>
+            <div className="flex items-center">
+                <Stack gap={1} className="mx-auto text-center w-56">
+                    <img src="/Icon/O_modre.svg" alt="O" width={100} height={100} className="self-center mb-8" />
+                    <a href={`/account/${player2ID}`} target="_blank" rel="noreferrer">
+                        <Typography fontSize={"40px"}>{player2}</Typography>
+                    </a>
+                    {(winner === "" && explicitWin === 0) && (
+                        <>
+                            <Typography fontSize={'36px'} fontWeight={'bold'}>{player2Time}</Typography>
+                            <br />
+                            <Typography fontSize={'32px'}>{`ELO: ${player2Elo}`}</Typography>
+                        </>
+                    )}
+                </Stack>
+            </div>
+        </Stack>
+
+        <br />
+        <br />
+        <br />
 
         {(winner === "" && explicitWin === 0) && (
-            <Stack gap={1}>
-                {(suggestDraw || suggestedDraw) || <Button onClick={suggestDrawFunc}>Navrhnout remízu</Button>}
+            <Stack gap={1} className="w-[400px] mx-auto">
+                {(suggestDraw || suggestedDraw) || <Button onClick={suggestDrawFunc} className="w-[400px] mx-auto">Navrhnout remízu</Button>}
                 {suggestedDraw && <>
-                    <Typography>Navrhl jsi remízu</Typography>
-                    <Button color="danger" onClick={cancelDraw}>Zrušit</Button>
+                    <Typography className="self-center">Navrhl jsi remízu</Typography>
+                    <Button color="success" onClick={cancelDraw}>Zrušit</Button>
                 </>}
                 {(suggestDraw && !suggestedDraw) && <>
-                    <Typography>Protihráč navrhl remízu</Typography>
+                    <Typography className="self-center">Protihráč navrhl remízu</Typography>
                     <Stack gap={1} direction="row">
-                        <Button color="success" onClick={acceptDraw} fullWidth>Přijmout</Button>
-                        <Button color="danger" onClick={declineDraw} fullWidth>Odmítnout</Button>
+                        <Button color="danger" onClick={acceptDraw} fullWidth>Přijmout</Button>
+                        <Button color="success" onClick={declineDraw} fullWidth>Odmítnout</Button>
                     </Stack>
                 </>}
             </Stack>
         )}
 
-        {[0, 1].map((x) => <br key={x}/>)}
-
-        <br/>
-
-        <Link href={'/'}>
-            <Button>Zpět do menu</Button>
-        </Link>
+        {(suggestDraw || suggestedDraw) || <div className="text-center mt-2">
+            <Button onClick={giveUp} className="w-[400px]" color="danger">{(winner === "" && explicitWin === 0) ? `Vzdát se` : `Zpět do menu`}</Button>
+        </div>}
 
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((x) => <br key={x}/>)}
     </>)
