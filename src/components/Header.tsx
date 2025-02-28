@@ -54,7 +54,7 @@ export default function Header(props: {
     const [showLoginDialog, setShowLoginDialog] = React.useState(false);
     const [showRegisterDialog, setShowRegisterDialog] = React.useState(false);
 
-    const router = useRouter();
+    const [showAdminButton, setShowAdminButton] = React.useState(false);
 
     React.useEffect(() => {
         refreshUserInformation();
@@ -69,26 +69,27 @@ export default function Header(props: {
 
     const refreshUserInformation = () => {
         apiGet('/auth/status').then(x => {
-            const y = x as { user: string, status: string, uuid: string }
+            const y = x as { user: string, status: string, uuid: string, admin: boolean | undefined }
 
             if (y.status === 'ok') {
                 setLoggedIn(true);
                 setLoggedInUser(y.user);
                 setLoggedInUserID(y.uuid);
+                setShowAdminButton(y.admin ?? false);
             }
         })
     }
 
     const navigateToHome = () => {
-        router.push('/');
+        location.href = '/';
     }
 
     const navigateToProfile = () => {
-        router.push(`/account/${loggedInUserID}`);
+        location.href = `/account/${loggedInUserID}`;
     }
     
     const navigateToSettings = () => {
-        router.push('/settings');
+        location.href = '/settings';
     }
 
     return <div className={`${dosis.className} fixed flex flex-row justify-between gap-6 w-5/6 left-1/2 top-4 bg-[#080808ee] -translate-x-1/2 p-3 px-3 rounded-xl drop-shadow-xl h-24`}>
@@ -96,7 +97,8 @@ export default function Header(props: {
             <Image onClick={navigateToHome} src={tda} alt={'Think different Academy logo'} className="cursor-pointer m-1" width={193} height={144} />
 
             <LinkButton href="/">Hry</LinkButton>
-            <LinkButton href="/accounts">Účty</LinkButton>
+            <LinkButton href="/accounts">Účty</LinkButton>  
+            {showAdminButton && <LinkButton href="/admin">Admin</LinkButton>}
         </Stack>
 
         <div className="flex flex-row items-center gap-6">

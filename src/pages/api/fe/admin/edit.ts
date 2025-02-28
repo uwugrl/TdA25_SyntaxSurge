@@ -17,50 +17,55 @@
  *
  */
 
+import { validateAdminAccount } from "@/components/backendUtils";
 import {PrismaClient} from "@prisma/client";
 import {NextApiRequest, NextApiResponse} from "next";
+
+
+const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const {token} = req.cookies;
 
     if (!token) {
-        res.status(403).send({
+        res.status(401).send({
             error: 'Unauthorized'
         });
         return;
     }
 
-    const prisma = new PrismaClient();
-    await prisma.$connect();
-
-    const tokenRecord = await prisma.user.findFirst({
-        where: {
-            userTokens: {
-                some: {
-                    token
-                }
-            }
-        }
-    });
-
-    if (!tokenRecord) {
+    if (!await validateAdminAccount(token)) {
         res.status(403).send({
-            error: "Unauthorized"
+            error: 'Forbidden: Not an admin account'
         });
         return;
     }
 
-    if (tokenRecord.banned) {
-        return res.status(403).send({
-            error: `Uživatel je zabanován`
-        })
+    const { id, name } = req.body as { id: string, name: string};
+
+    if (!id || !name) {
+        return res.status(400).send({
+            error: 'Invalid parameters'
+        });
     }
 
-    res.status(200).send({
-        status: 'ok',
-        uuid: tokenRecord.userId,
-        user: tokenRecord.username,
-        email: tokenRecord.email,
-        admin: tokenRecord.administrator ? true : undefined
+    const upd = await prisma.game.update({
+        where: {
+            id
+        },
+        data: {
+            name
+        }
+    });
+
+    if (upd) {
+        res.status(200).send({
+            status: 'ok'
+        });
+        return;
+    }
+
+    res.status(404).send({
+        error: 'Game not found'
     });
 }
