@@ -28,7 +28,12 @@ export default function Game(params: {
     const [player1Time, setPlayer1Time] = useState('');
     const [player2Time, setPlayer2Time] = useState('');
 
-    const [explicitWin, setExplicitWin] = useState(false);
+    const [explicitWin, setExplicitWin] = useState(0);
+
+    const [suggestDraw, setSuggestDraw] = useState(false);
+    const [suggestedDraw, setSuggestedDraw] = useState(false);
+
+    const suggestedDrawState = useRef(false);
 
     const hasRan = useRef(false);
 
@@ -60,7 +65,8 @@ export default function Game(params: {
                         winner: boolean,
                         p1LeftTime: number,
                         p2LeftTime: number,
-                        explicitEnd: boolean
+                        explicit: number,
+                        suggestDraw: boolean
                     };
                     console.log(game.status);
 
@@ -73,7 +79,13 @@ export default function Game(params: {
                     setHasWon(game.winner);
                     setPlayer1Time(formatPlayerTime(game.p1LeftTime));
                     setPlayer2Time(formatPlayerTime(game.p2LeftTime));
-                    setExplicitWin(game.explicitEnd);
+                    setExplicitWin(game.explicit);
+                    setSuggestDraw(game.suggestDraw);
+                
+                    if (suggestedDrawState.current && !game.suggestDraw) {
+                        setSuggestedDraw(false);
+                        suggestedDrawState.current = false;
+                    }
                 });
             }, 200);
         }
@@ -118,6 +130,42 @@ export default function Game(params: {
         location.href = '/';
     }
 
+    const suggestDrawFunc = () => {
+        apiPost('/game/draw', {
+            reqType: 'suggest'
+        }).then(() => {
+            setSuggestedDraw(true);
+            suggestedDrawState.current = true;
+        }).catch(x => {
+            setError(x);
+        });
+    }
+
+    const acceptDraw = () => {
+        apiPost('/game/draw', {
+            reqType: 'accept'
+        });
+    }
+
+    const declineDraw = () => {
+        apiPost('/game/draw', {
+            reqType: 'decline'
+        }).then(() => {
+            setSuggestDraw(false);
+            suggestedDrawState.current = false;
+        });
+    }
+
+    const cancelDraw = () => {
+        apiPost('/game/draw', {
+            reqType: 'cancel'
+        }).then(() => {
+            setSuggestedDraw(false);
+            setSuggestDraw(false);
+            suggestedDrawState.current = false;
+        });
+    }
+
     return (<>
         <div className="m-auto">
             <Typography level="h1" textAlign="center" fontSize={"60px"}>
@@ -125,7 +173,7 @@ export default function Game(params: {
             </Typography>
         </div>
 
-        {(winner === "" && !explicitWin) && (
+        {(winner === "" && explicitWin === 0) && (
             <>
                 <div className="flex flex-row justify-around">
                     <Typography fontSize={'36px'} fontWeight={'bold'}>{player1Time}</Typography>
@@ -134,11 +182,15 @@ export default function Game(params: {
                 {onMove ? <Typography fontSize="30px" color="success" textAlign={"center"}>Hraješ!</Typography> : <Typography fontSize="30px" textAlign={"center"}>Hraje protihráč...</Typography>}
             </>
         )}
-        {(winner === "" && !explicitWin) || (
+        {(winner === "" && explicitWin === 0) || (
             <>
                 <Stack gap={1}>
                     <Stack direction="row" gap={1}>
-                        <Typography level="h3" alignSelf="center">{hasWon ? 'Vyhrál jsi!' : 'Prohrál jsi.'}</Typography>
+                        {explicitWin === 2 ? <>
+                            <Typography level="h3">Remíza.</Typography>
+                        </> : <>
+                            <Typography level="h3" alignSelf="center">{hasWon ? 'Vyhrál jsi!' : 'Prohrál jsi.'}</Typography>
+                        </>}
                     </Stack>
                     <Stack direction="row" gap={1}>
                         <Button size="lg" onClick={newGame}>Hrát znovu s aktuálním hráčem</Button>
@@ -151,6 +203,23 @@ export default function Game(params: {
         {error && <Typography color="danger">{error}</Typography>}
 
         <GameBoard allowInteract={isLoaded} board={game} interact={handleInteraction}/>
+
+        {(winner === "" && explicitWin === 0) && (
+            <Stack gap={1}>
+                {(suggestDraw || suggestedDraw) || <Button onClick={suggestDrawFunc}>Navrhnout remízu</Button>}
+                {suggestedDraw && <>
+                    <Typography>Navrhl jsi remízu</Typography>
+                    <Button color="danger" onClick={cancelDraw}>Zrušit</Button>
+                </>}
+                {(suggestDraw && !suggestedDraw) && <>
+                    <Typography>Protihráč navrhl remízu</Typography>
+                    <Stack gap={1} direction="row">
+                        <Button color="success" onClick={acceptDraw} fullWidth>Přijmout</Button>
+                        <Button color="danger" onClick={declineDraw} fullWidth>Odmítnout</Button>
+                    </Stack>
+                </>}
+            </Stack>
+        )}
 
         {[0, 1].map((x) => <br key={x}/>)}
 

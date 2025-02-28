@@ -21,7 +21,7 @@ import { getAccountFromID, getAccountFromToken } from "@/components/backendUtils
 import { PrismaClient } from "@prisma/client";
 import { v4 } from "uuid";
 import { NextApiRequest, NextApiResponse } from "next";
-import { determineGameState, evalWinner } from "@/components/gameUtils";
+import { determineGameState, evalWinner, getNextSymbol } from "@/components/gameUtils";
 import { fromDbBoard } from "@/components/fromDB";
 import moment from "moment";
 
@@ -51,6 +51,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const existingGames = await prisma.game.findMany({where: {OR: [{player1ID: player2.userId}, {player2ID: player2.userId}]}, include: {board: true}});
     const existingGame = existingGames.find(x => {
         if (evalWinner(fromDbBoard(x.board)) === "" && x.explicitWinner === 0) return true;
+        const playing = getNextSymbol(fromDbBoard(x.board));
+        let p1LeftTime = x.player1Timer;
+        let p2LeftTime = x.player2Timer;
+        
+        if (playing === 'X') {
+            p1LeftTime -= moment().diff(x.player1TimerStart, 's');
+        }
+        if (playing === 'O') {
+            p2LeftTime -= moment().diff(x.player2TimerStart, 's');
+        }
+
+        if (p1LeftTime < 0 || p2LeftTime < 0) return false;
         return false;
     })
 

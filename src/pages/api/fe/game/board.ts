@@ -115,7 +115,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 player2: game.player2?.username ?? 'Unknown',
                 p1LeftTime,
                 p2LeftTime,
-                explicitEnd: p1LeftTime < 0 || p2LeftTime < 0 || game.explicitWinner !== 0
+                explicit: game.explicitWinner === 3 ? 2 : ((p1LeftTime < 0 || p2LeftTime < 0 || game.explicitWinner !== 0) ? 1 : 0),
+                suggestDraw: game.suggestDraw
             });
         }
 

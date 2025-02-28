@@ -8,16 +8,17 @@ generator client {
 }
 
 model Game {
-  id         String      @id
-  name       String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  difficulty Int
-  board      GameBoard[]
-  player1ID  String?
-  player1    User?       @relation(name: "player1", fields: [player1ID], references: [userId])
-  player2ID  String?
-  player2    User?       @relation(name: "player2", fields: [player2ID], references: [userId])
+  id          String      @id
+  name        String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  difficulty  Int
+  board       GameBoard[]
+  player1ID   String?
+  player1     User?       @relation(name: "player1", fields: [player1ID], references: [userId])
+  player2ID   String?
+  player2     User?       @relation(name: "player2", fields: [player2ID], references: [userId])
+  suggestDraw Boolean     @default(false)
 
   // Timers
   player1Timer      Int      @default(480)
