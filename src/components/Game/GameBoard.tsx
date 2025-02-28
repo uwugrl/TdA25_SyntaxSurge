@@ -40,9 +40,11 @@ export default function GameBoard(params: {
             canvasRef.current.addEventListener('click', (ev: MouseEvent) => {
                 if (canvasRef.current && canvasParentRef.current) {
                     const size = canvasParentRef.current.clientWidth / params.board.length;
-                    const x = Math.floor((ev.clientX - canvasRef.current.offsetLeft - window.scrollX) / size);
-                    const y = Math.floor((ev.clientY - canvasRef.current.offsetTop - window.scrollY) / size);
+                    const x = Math.floor((ev.clientX - canvasRef.current.offsetLeft + window.scrollX) / size);
+                    const y = Math.floor((ev.clientY - canvasRef.current.offsetTop + window.scrollY) / size);
                     
+                    console.log(`Clicked at: ${ev.clientX}, ${ev.clientY} → Converted to board: (${x}, ${y})`);
+
                     if (params.interact && params.allowInteract) {
                         params.interact(x, y);
                     }

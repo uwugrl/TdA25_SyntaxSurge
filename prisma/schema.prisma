@@ -29,9 +29,11 @@ model Game {
 }
 
 model FreeGame {
-  id         String      @id
-  name       String
-  board      FreeGameBoard[]
+  id       String          @id
+  name     String
+  board    FreeGameBoard[]
+  gameCode String          @unique
+  expires  DateTime?
 }
 
 model GameBoard {
@@ -44,10 +46,10 @@ model GameBoard {
 }
 
 model FreeGameBoard {
-  id     Int    @id @default(autoincrement())
+  id     Int      @id @default(autoincrement())
   x      Int
   y      Int
-  game   FreeGame   @relation(fields: [gameId], references: [id])
+  game   FreeGame @relation(fields: [gameId], references: [id])
   gameId String
   state  Int
 }
