@@ -60,7 +60,7 @@ export default function RegisterDialog(props: {
                     setShowRegistered(true);
 
                     setTimeout(() => {
-                        props.hide();
+                        location.reload();
                     }, 1000);
                 }).catch(catchError)
             }).catch(catchError);

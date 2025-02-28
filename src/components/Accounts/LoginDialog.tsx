@@ -48,7 +48,7 @@ export default function LoginDialog(props: {
                 setShowLoggedIn(true);
 
                 setTimeout(() => {
-                    props.hide();
+                    location.reload();
                 }, 1000);
             }).catch(x => {
                 setLoading(false);
