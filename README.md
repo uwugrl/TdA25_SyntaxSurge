@@ -1,45 +1,47 @@
+[Čeština](README_CZ.md) | [English](README.md)
+
 # Think different Academy
 
-Apka pro nominační kolo soutěže [Tour de App](https://tourde.app/).
+App for the nomination round of the [Tour de App](https://tourde.app/) competition.
 
-## Vytvořili
+## Created by
 
 - mldchan - [Web](https://mldchan.dev/), [GitHub](https://github.com/mldchan), [code.mldchan.dev](https://code.mldchan.dev/mld), [Fedi](https://social.mldchan.dev/@mld)
-- krystof - [code.mldchan.dev](https://code.mldchan.dev/Krysunka), [Fedi](https://social.mldchan.dev/@Krysunka)
+- Krystof - [code.mldchan.dev](https://code.mldchan.dev/Krysunka), [Fedi](https://social.mldchan.dev/@Krysunka)
 
-## O aplikaci
+## About the application
 
-Aplikace je vytvořena pomocí NextJS a TailwindCSS. Používáme Prismu pro návrh databáze a SQLite aby jsme data uložili na
+The application is built using NextJS and TailwindCSS. We use Prism for database design and SQLite to store the data on
 disk.
 
-## Vývoj
+## Development
 
-Pokud chcete spustit tuto aplikaci ve vývoji, můžete použít následující příkazy:
+If you want to run this application in development, you can use the following commands:
 
-1. `git clone https://code.mldchan.dev/mld/tda25_syntaxsurge.git` - naklonování repozitáře (popřípadě použít GitHub)
-2. `cd tda25_syntaxsurge` - přesun do složky s projektem
-3. `yarn install` - stažení knihoven
-4. `yarn dev` - spuštění vývojového serveru
+1. `git clone https://code.mldchan.dev/mld/tda25_syntaxsurge.git` - clone the repository (or use GitHub)
+2. `cd tda25_syntaxsurge` - move to the project folder
+3. `yarn install` - download the libraries
+4. `yarn dev` - start the development server
 
-## Stavba do produkce
+## Building to production
 
-Pokud chcete aplikaci postavit do produkce, můžete použít následující příkazy:
+If you want to build the application into production, you can use the following commands:
 
-1. `git clone https://code.mldchan.dev/mld/tda25_syntaxsurge.git` - naklonování repozitáře (popřípadě použít GitHub)
-2. `cd tda25_syntaxsurge` - přesun do složky s projektem
-3. `yarn install` - stažení knihoven
-4. `yarn build` - sestavení aplikace
+1. `git clone https://code.mldchan.dev/mld/tda25_syntaxsurge.git` - clone the repository (or use GitHub)
+2. `cd tda25_syntaxsurge` - move to the project folder
+3. `yarn install` - download the libraries
+4. `yarn build` - build the application
 
-Naše aplikace jde také postavit jako Docker image. Pro to je potřeba mít nainstalovaný Docker. Pokud ho máte, můžete
-použít následující příkazy:
+Our application can also be built as a Docker image. For this you need to have Docker installed. If you have it, you can
+use the following commands:
 
-1. `git clone https://code.mldchan.dev/mld/tda25_syntaxsurge.git` - naklonování repozitáře (popřípadě použít GitHub)
-2. `cd tda25_syntaxsurge` - přesun do složky s projektem
-3. `docker build -t tda25_syntaxsurge:latest .` - sestavení Docker image
+1. `git clone https://code.mldchan.dev/mld/tda25_syntaxsurge.git` - clone the repository (or use GitHub)
+2. `cd tda25_syntaxsurge` - move to the project folder
+3. `docker build -t tda25_syntaxsurge:latest .` - build Docker image
 
-Aplikace běží na portu 80, pomocí `docker run -p 80:80 tda25_syntaxsurge:latest` můžete spustit aplikaci.
+The application runs on port 80, use `docker run -p 80:80 tda25_syntaxsurge:latest` to run the application.
 
-## Licence
+## License
 
-Celá aplikace je pod licencí GNU AGPL v3. Tato licence je určena pro webové aplikace. Každá aplikace používající náš
-kód musí být pod stejnou licencí. Pro více informací se podívejte do souboru `LICENSE`.
+The entire application is licensed under the GNU AGPL v3. This license is intended for web applications. Any application using our
+code must be under the same license. See the `LICENSE` file for more information.
